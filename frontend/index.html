@@ -305,13 +305,28 @@ function checkStatus() {
   const id = searchEl().value.trim();
   if (!id) return alert("Enter Request ID.");
 
-  fetch(BACKEND_URL + "/checkStatus?requestID=" + id)
+  fetch(`https://luce-bridge-backend-production.up.railway.app/checkStatus/${id}`)
     .then(res => res.json())
     .then(data => {
       statusEl().classList.remove("hidden");
-      statusEl().innerText = data.status || data.error || "No data";
+      if (data.error) {
+        statusEl().innerText = "Error: " + data.error;
+      } else {
+        // Translate status text for users
+        const status = (data.status || "").toLowerCase();
+        if (status === "pending") {
+          statusEl().innerText = "Pending — please allow up to 24 hours for manual verification and processing.";
+        } else if (status === "completed" || status === "complete") {
+          statusEl().innerText = "Your bridge request has been completed.";
+        } else {
+          statusEl().innerText = data.status;
+        }
+      }
     })
-    .catch(err => statusEl().innerText = "Error checking status: " + err);
+    .catch(err => {
+      statusEl().classList.remove("hidden");
+      statusEl().innerText = "Error checking status: " + err;
+    });
 }
 
 /* ----------------- Validation Functions ----------------- */
