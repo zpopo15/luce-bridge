@@ -5,15 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <title>luce.finance Bridge</title>
 
-  <!-- Favicons -->
-  <!-- Browser tab icon -->
   <link rel="icon" type="image/png" href="favicon.png">
-
-  <!-- iOS / Android home screen icon -->
   <link rel="apple-touch-icon" sizes="180x180" href="favicon-apple.png">
 
   <style>
-  /* ================= Theme Colors ================= */
   :root {
     --bg: rgb(245, 249, 255);
     --card: #ffffff;
@@ -42,7 +37,6 @@
     --input-border: #3b4756;
   }
 
-  /* ================= General ================= */
   * { box-sizing: border-box; }
   body {
     margin: 0;
@@ -53,8 +47,9 @@
   }
 
   .container { max-width: min(92vw, 720px); margin: auto; }
-  h2 { text-align: center; font-size: clamp(1.5rem, 4vw, 2.2rem); margin-top: 0; margin-bottom: 16px; }
-  h3 { text-align: center; font-size: clamp(1.1rem, 3vw, 1.4rem); margin-top: 0; margin-bottom: 16px; }
+  h2, h3 { text-align: center; margin-top: 0; margin-bottom: 16px; }
+  h2 { font-size: clamp(1.5rem, 4vw, 2.2rem); }
+  h3 { font-size: clamp(1.1rem, 3vw, 1.4rem); }
 
   .box {
     background: var(--card);
@@ -78,10 +73,7 @@
     color: var(--input-text);
   }
 
-  select option {
-    background: var(--card);
-    color: var(--text);
-  }
+  select option { background: var(--card); color: var(--text); }
 
   button {
     display: inline-block;
@@ -99,14 +91,12 @@
     box-shadow: 0 4px 8px rgba(0,0,0,0.08);
     margin-top: 12px;
   }
-
   button:hover { background: var(--primary-hover); }
 
   .copy-btn {
     width: auto;
     display: block;
     margin: 12px auto 0 auto;
-    text-align: center;
     font-size: 14px;
     padding: 12px 20px;
     border-radius: 8px;
@@ -117,7 +107,6 @@
     box-shadow: 0 4px 8px rgba(0,0,0,0.08);
     transition: all 0.2s ease;
   }
-
   .copy-btn:hover { background: var(--primary-hover); }
 
   .theme-button {
@@ -133,33 +122,15 @@
     display: block;
     width: auto;
   }
-
   .theme-button:hover { background: var(--primary-hover); }
 
   .hidden { display: none !important; opacity: 0; transform: translateY(10px); }
   .show { display: block !important; opacity: 1; transform: translateY(0); }
 
-  #stage2 {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  #destination {
-    text-align: center;
-    font-weight: bold;
-    margin-top: 10px;
-    word-break: break-all;
-  }
-
-  #stage2 img {
-    display: block;
-    margin: 16px auto 20px auto;
-    width: min(60vw, 180px);
-  }
-
+  #stage2 { display: flex; flex-direction: column; align-items: center; }
+  #destination { text-align: center; font-weight: bold; margin-top: 10px; word-break: break-all; }
+  #stage2 img { display: block; margin: 16px auto 20px auto; width: min(60vw, 180px); }
   #stage2 input { width: 100%; }
-
   #statusResult {
     margin-top: 12px;
     padding: 14px;
@@ -170,9 +141,6 @@
     word-break: break-all;
     width: 100%;
   }
-
-  .pending { background: #fff3cd !important; }
-  .completed { background: #d4edda !important; }
   </style>
 </head>
 
@@ -180,18 +148,9 @@
 <div class="container">
 
   <button class="theme-button" id="themeButton" onclick="toggleTheme()">Dark Mode</button>
-
   <h2>luce.finance Bridge</h2>
 
-  <!-- Disclaimer -->
-  <p style="
-    text-align: center;
-    font-size: 13px;
-    margin: 0 0 18px 0;
-    color: var(--text);
-    opacity: 0.85;
-    line-height: 1.5;
-  ">
+  <p style="text-align: center; font-size: 13px; margin: 0 0 18px 0; color: var(--text); opacity: 0.85; line-height: 1.5;">
     Bridge requests are <strong>manually verified</strong> for security reasons.  
     Please allow up to <strong>24 hours</strong> for completion after submission.
   </p>
@@ -207,21 +166,11 @@
     <input id="sender" placeholder="Your sending address" />
     <input id="amount" type="number" placeholder="Amount to be sent (10 minimum)" />
 
-    <!-- Fee display badge -->
-    <div id="feeDisplay" style="
-        margin-top: 8px; 
-        font-size: 14px; 
-        color: var(--text); 
-        background: var(--card); 
-        border: 1px solid var(--border); 
-        border-radius: 8px; 
-        padding: 6px 12px; 
-        width: fit-content;">
+    <div id="feeDisplay" style="margin-top: 8px; font-size: 14px; color: var(--text); background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; width: fit-content;">
       You will receive: 0
     </div>
 
     <input id="receiver" placeholder="Your receiving address" />
-
     <button onclick="nextStage()">Continue</button>
   </div>
 
@@ -231,21 +180,16 @@
     <div id="destination"></div>
     <button class="copy-btn" onclick="copyText('destination')">Copy Address</button>
     <img id="qr">
-
     <input id="txid" placeholder="Transaction ID (TXID)">
     <button onclick="submitBridge()">Submit Bridge</button>
-
     <p style="text-align:center; margin-top:10px;">Request ID: <strong id="reqid"></strong></p>
   </div>
 
   <!-- Status Check -->
   <div class="box">
-    <h3>Check Bridge Status</h3>
-    <input id="searchID" placeholder="Request ID">
-    <button onclick="checkStatus()">Check</button>
-    <div id="statusResult" class="hidden"></div>
-  </div>
-
+  <h3>Check Bridge Status</h3>
+  <input id="searchID" placeholder="Request ID">
+  <button onclick="checkStatus()">Check</button>
 </div>
 
 <script>
@@ -254,222 +198,165 @@ const USDT_RESERVE = "0x348896fF1353966B74d0946F367705E8cf901153";
 const LUSDT_BURN = "xBURNomniXEPXXXXXXXXXXXXXXXXbWWsD9";
 let requestID = "";
 
-/* ----------------- Stage 1 → Stage 2 ----------------- */
-function nextStage() {
-  const asset = assetEl().value;
-  const amt = +amountEl().value;
-  const sender = senderEl().value.trim();
-  const receiver = receiverEl().value.trim();
-
-  if (!asset || amt < 10) return alert("Must bridge a minimum of 10 tokens.");
-  if (!validateAddress(asset, sender, "sender")) return;
-  if (!validateAddress(asset, receiver, "receiver")) return;
-
-  // Generate Request ID
-  requestID = Math.random().toString(16).slice(2, 8).toUpperCase();
-  reqidEl().innerText = requestID;
-
-  // Set destination and QR code
-  destinationEl().innerText = asset === "USDT" ? USDT_RESERVE : LUSDT_BURN;
-  qrEl().src = "https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=" + destinationEl().innerText;
-
-  // Show stage 2
-  stage2().classList.remove("hidden");
-  stage2().classList.add("show");
-
-  // Disable Continue button and update text
-  const continueBtn = document.querySelector('#stage1 button');
-  continueBtn.disabled = true;
-  continueBtn.innerText = "Request ID Generated";
-  continueBtn.style.opacity = 0.5;
-  continueBtn.style.cursor = "not-allowed";
-
-// Lock Stage 1 inputs after Continue
-assetEl().disabled = true;
-senderEl().disabled = true;
-receiverEl().disabled = true;
-amountEl().disabled = true;
-
-// Make them visually appear disabled
-const stage1Inputs = [assetEl(), senderEl(), receiverEl(), amountEl()];
-stage1Inputs.forEach(input => {
-  input.style.background = "var(--input-bg)";
-  input.style.color = "var(--input-text)";
-  input.style.cursor = "not-allowed";
-});
-}
-
-/* ----------------- Submit Bridge ----------------- */
-function submitBridge() {
-  const txid = txidEl().value.trim();
-  const asset = assetEl().value;
-  const submitBtn = document.querySelector('#stage2 button[onclick="submitBridge()"]');
-
-  if (!txid) return alert("TXID required.");
-  if (!validateTxid(asset, txid)) return;
-
-  const payload = {
-    requestID,
-    asset: asset,
-    amount: amountEl().value,
-    sender: senderEl().value,
-    receiver: receiverEl().value,
-    txid
-  };
-
-  fetch(BACKEND_URL + "/submitBridge", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.success) {
-      alert("Bridge submitted!");
-
-      // Disable Submit button
-      submitBtn.disabled = true;
-      submitBtn.innerText = "Bridge Submitted";
-      submitBtn.style.opacity = 0.5; // optional visual cue
-      submitBtn.style.cursor = "not-allowed";
-
-      // Disable TXID input in a theme-aware way
-      txidEl().disabled = true;
-      txidEl().style.background = "var(--input-bg)";
-      txidEl().style.color = "var(--input-text)";
-      txidEl().style.cursor = "not-allowed";
-
-    } else {
-      alert("Error: " + (data.error || "Unknown error"));
-    }
-  })
-  .catch(err => alert("Error submitting bridge: " + err));
-}
-
-/* ----------------- Check Status ----------------- */
-function checkStatus() {
-  const id = searchEl().value.trim();
-  if (!id) return alert("Enter Request ID.");
-
-  fetch(`https://luce-bridge-backend-production.up.railway.app/checkStatus/${id}`)
-    .then(res => res.json())
-    .then(data => {
-      statusEl().classList.remove("hidden");
-      if (data.error) {
-        statusEl().innerText = "Error: " + data.error;
-      } else {
-        // Translate status text for users
-        const status = (data.status || "").toLowerCase();
-        if (status === "pending") {
-          statusEl().innerText = "Pending — please allow up to 24 hours for manual verification and processing.";
-        } else if (status === "completed" || status === "complete") {
-          statusEl().innerText = "Your bridge request has been completed.";
-        } else {
-          statusEl().innerText = data.status;
-        }
-      }
-    })
-    .catch(err => {
-      statusEl().classList.remove("hidden");
-      statusEl().innerText = "Error checking status: " + err;
-    });
+/* ----------------- Uniform Button Feedback ----------------- */
+function showBtnFeedback(btn, message) {
+  if (!btn) return;
+  const original = btn.innerText;
+  btn.innerText = message;
+  btn.style.opacity = 1;
+  btn.style.cursor = "pointer";
+  setTimeout(() => { btn.innerText = original; }, 2000);
 }
 
 /* ----------------- Validation Functions ----------------- */
-function validateAddress(asset, addr, role) {
-  let regex;
-
-  if (role === "sender") {
-    if (asset === "USDT") regex = /^0x[a-fA-F0-9]{40}$/;
-    if (asset === "LUSDT") regex = /^x[a-zA-Z0-9]{33}$/;
-  } else if (role === "receiver") {
-    if (asset === "USDT") regex = /^x[a-zA-Z0-9]{33}$/;
-    if (asset === "LUSDT") regex = /^0x[a-fA-F0-9]{40}$/;
-  }
-
-  if (!regex.test(addr)) {
-    alert(`${role.charAt(0).toUpperCase() + role.slice(1)} address is invalid.`);
-    return false;
-  }
+function validateAddress(asset, addr, role, btn) {
+  const regex = (role==="sender" ? (asset==="USDT" ? /^0x[a-fA-F0-9]{40}$/ : /^x[a-zA-Z0-9]{33}$/)
+                                  : (asset==="USDT" ? /^x[a-zA-Z0-9]{33}$/ : /^0x[a-fA-F0-9]{40}$/));
+  if (!regex.test(addr)) { showBtnFeedback(btn, `${role.charAt(0).toUpperCase()+role.slice(1)} address is invalid.`); return false; }
   return true;
 }
 
 function validateTxid(asset, txid) {
-  let regex;
-
-  if (asset === "USDT") regex = /^0x[a-fA-F0-9]{64}$/;
-  if (asset === "LUSDT") regex = /^[a-fA-F0-9]{64}$/;
-
-  if (!regex.test(txid)) {
-    alert(`TXID is invalid.`);
-    return false;
-  }
+  const btn = document.querySelector('#stage2 button[onclick="submitBridge()"]');
+  const regex = asset==="USDT" ? /^0x[a-fA-F0-9]{64}$/ : /^[a-fA-F0-9]{64}$/;
+  if (!regex.test(txid)) { showBtnFeedback(btn, "Transaction ID is invalid."); return false; }
   return true;
 }
 
-/* ----------------- Theme Button ----------------- */
-function toggleTheme() {
-  const isDark = document.documentElement.dataset.theme === "dark";
-  const newTheme = isDark ? "" : "dark";
-  document.documentElement.dataset.theme = newTheme;
-  localStorage.setItem("theme", newTheme);
+/* ----------------- Stage 1 → Stage 2 ----------------- */
+function validateStage1() {
+  const asset = assetEl().value;
+  const amt = +amountEl().value;
+  const sender = senderEl().value.trim();
+  const receiver = receiverEl().value.trim();
+  const btn = document.querySelector('#stage1 button');
+
+  if (!asset || amt<10) { showBtnFeedback(btn,"Minimum 10 tokens required."); return false; }
+  if (!validateAddress(asset,sender,"sender",btn)) return false;
+  if (!validateAddress(asset,receiver,"receiver",btn)) return false;
+  return true;
+}
+
+function nextStage() {
+  if (!validateStage1()) return;
+
+  requestID = Math.random().toString(16).slice(2,8).toUpperCase();
+  reqidEl().innerText = requestID;
+
+  destinationEl().innerText = assetEl().value==="USDT" ? USDT_RESERVE : LUSDT_BURN;
+  qrEl().src = "https://api.qrserver.com/v1/create-qr-code/?size=180x180&data="+destinationEl().innerText;
+
+  stage2().classList.remove("hidden"); stage2().classList.add("show");
+
+  const btn = document.querySelector('#stage1 button');
+  btn.disabled=true; btn.innerText="Request ID Generated"; btn.style.opacity=0.5; btn.style.cursor="not-allowed";
+
+  [assetEl(),senderEl(),receiverEl(),amountEl()].forEach(input=>{
+    input.disabled=true; input.style.background="var(--input-bg)"; input.style.color="var(--input-text)"; input.style.cursor="not-allowed";
+  });
+}
+
+/* ----------------- Submit Bridge ----------------- */
+function submitBridge() {
+  const txid = txidEl().value.trim(); const asset = assetEl().value;
+  const btn = document.querySelector('#stage2 button[onclick="submitBridge()"]');
+
+  if (!txid) { showBtnFeedback(btn,"Transaction ID is required."); return; }
+  if (!validateTxid(asset,txid)) return;
+
+  const payload = { requestID, asset, amount: amountEl().value, sender: senderEl().value, receiver: receiverEl().value, txid };
+  btn.style.width = btn.offsetWidth + "px";
+
+  fetch(BACKEND_URL+"/submitBridge",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)})
+  .then(res=>res.json())
+  .then(data=>{
+    if(data.success){
+      btn.innerText="Bridge Submitted"; btn.disabled=true; btn.style.opacity=0.5; btn.style.cursor="not-allowed";
+      txidEl().disabled=true; txidEl().style.background="var(--input-bg)"; txidEl().style.color="var(--input-text)"; txidEl().style.cursor="not-allowed";
+    }else showBtnFeedback(btn,data.error||"Bridge submission failed. Please try again.");
+  })
+  .catch(err=>showBtnFeedback(btn,"Network error. Please try again."));
+}
+
+/* ----------------- Copy Address ----------------- */
+function copyText(id){
+  const btn=document.querySelector('.copy-btn'); const original=btn.innerText;
+  btn.style.width=btn.offsetWidth+"px";
+  navigator.clipboard.writeText(document.getElementById(id).innerText);
+  btn.innerText="Copied!";
+  setTimeout(()=>{btn.innerText=original; btn.style.width="";},2000);
+}
+
+/* ----------------- Check Status (button feedback style) ----------------- */
+function checkStatus() {
+  const btn = document.querySelector('.box:last-of-type button'); // the Check button
+  const id = searchEl().value.trim();
+
+  if (!id) {
+    showBtnFeedback(btn, "Enter Request ID.");
+    return;
+  }
+
+  fetch(`${BACKEND_URL}/checkStatus/${id}`)
+    .then(res => res.json())
+    .then(data => {
+      // Handle error or unrecognized request ID
+      if (data.error || !data.status) {
+        showBtnFeedback(btn, "Request ID not found.");
+        return;
+      }
+
+      const status = (data.status || "").toLowerCase();
+
+      if (status === "pending") showBtnFeedback(btn, "Pending — allow up to 24h for manual verification.");
+      else if (status === "completed" || status === "complete") showBtnFeedback(btn, "Bridge request completed.");
+      else showBtnFeedback(btn, data.status + ".");
+    })
+    .catch(err => {
+      showBtnFeedback(btn, "Error checking status. Please try again.");
+    });
+}
+
+/* ----------------- Theme ----------------- */
+function toggleTheme(){
+  const isDark=document.documentElement.dataset.theme==="dark";
+  document.documentElement.dataset.theme=isDark?"":"dark";
+  localStorage.setItem("theme",isDark?"":"dark");
   updateThemeButton();
 }
 
-function updateThemeButton() {
-  const isDark = document.documentElement.dataset.theme === "dark";
-  document.getElementById("themeButton").innerText = isDark ? "Light Mode" : "Dark Mode";
+function updateThemeButton(){
+  document.getElementById("themeButton").innerText=document.documentElement.dataset.theme==="dark"?"Light Mode":"Dark Mode";
 }
 
-/* ----------------- Load saved theme ----------------- */
-(function () {
-  const saved = localStorage.getItem("theme") === "dark";
-  document.documentElement.dataset.theme = saved ? "dark" : "";
+(function(){
+  document.documentElement.dataset.theme=localStorage.getItem("theme")==="dark"?"dark":"";
   updateThemeButton();
 })();
 
 /* ----------------- Helpers ----------------- */
-const assetEl = () => document.getElementById("asset");
-const senderEl = () => document.getElementById("sender");
-const receiverEl = () => document.getElementById("receiver");
-const amountEl = () => document.getElementById("amount");
-const txidEl = () => document.getElementById("txid");
-const destinationEl = () => document.getElementById("destination");
-const qrEl = () => document.getElementById("qr");
-const stage2 = () => document.getElementById("stage2");
-const statusEl = () => document.getElementById("statusResult");
-const searchEl = () => document.getElementById("searchID");
-const reqidEl = () => document.getElementById("reqid");
+const assetEl=()=>document.getElementById("asset");
+const senderEl=()=>document.getElementById("sender");
+const receiverEl=()=>document.getElementById("receiver");
+const amountEl=()=>document.getElementById("amount");
+const txidEl=()=>document.getElementById("txid");
+const destinationEl=()=>document.getElementById("destination");
+const qrEl=()=>document.getElementById("qr");
+const stage2=()=>document.getElementById("stage2");
+const statusEl=()=>document.getElementById("statusResult");
+const searchEl=()=>document.getElementById("searchID");
+const reqidEl=()=>document.getElementById("reqid");
 
-function copyText(id) {
-  navigator.clipboard.writeText(document.getElementById(id).innerText);
-  alert("Copied.");
+/* ----------------- Fee ----------------- */
+function updateFee(){
+  const amt=parseFloat(amountEl().value); const asset=assetEl().value; const feeDisplay=document.getElementById("feeDisplay");
+  if(!amt||amt<0||!asset){feeDisplay.innerText="You will receive: 0"; return;}
+  const received=(amt*0.98).toFixed(2);
+  feeDisplay.innerText=`You will receive: ${received} ${asset==="USDT"?"LUSDT":"USDT"} (after 2% fee)`;
 }
-
-/* ----------------- Fee Calculation ----------------- */
-function updateFee() {
-  const amt = parseFloat(amountEl().value);
-  const asset = assetEl().value;
-  const feeDisplay = document.getElementById("feeDisplay");
-
-  if (!amt || amt < 0 || !asset) {
-    feeDisplay.innerText = "You will receive: 0";
-    return;
-  }
-
-  const received = (amt * 0.98).toFixed(2);
-  let receivedAsset = "";
-
-  if (asset === "USDT") receivedAsset = "LUSDT";
-  if (asset === "LUSDT") receivedAsset = "USDT";
-
-  feeDisplay.innerText = `You will receive: ${received} ${receivedAsset} (after 2% fee)`;
-}
-
-amountEl().addEventListener("input", updateFee);
-assetEl().addEventListener("change", updateFee);
+amountEl().addEventListener("input",updateFee);
+assetEl().addEventListener("change",updateFee);
 updateFee();
-
 </script>
 </body>
 </html>
