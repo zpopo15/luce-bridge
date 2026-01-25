@@ -231,8 +231,8 @@ function validateStage1() {
   const receiver = receiverEl().value.trim();
   const btn = document.querySelector('#stage1 button');
 
-  if (!asset || amt<10) { showBtnFeedback(btn,"Minimum 10 tokens required."); return false; }
   if (!validateAddress(asset,sender,"sender",btn)) return false;
+  if (!asset || amt<10) { showBtnFeedback(btn,"Minimum 10 tokens required."); return false; }
   if (!validateAddress(asset,receiver,"receiver",btn)) return false;
   return true;
 }
