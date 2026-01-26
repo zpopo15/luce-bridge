@@ -198,6 +198,24 @@ const USDT_RESERVE = "0x348896fF1353966B74d0946F367705E8cf901153";
 const LUSDT_BURN = "xBURNomniXEPXXXXXXXXXXXXXXXXbWWsD9";
 let requestID = "";
 
+/* ----------------- Responsive Placeholders ----------------- */
+function updateAddressPlaceholders() {
+  const asset = assetEl().value;
+
+  if (asset === "USDT") {
+    senderEl().placeholder = "Your Binance Smart Chain (0x...) sending address";
+    receiverEl().placeholder = "Your OmniXEP (x...) receiving address";
+  } 
+  else if (asset === "LUSDT") {
+    senderEl().placeholder = "Your OmniXEP (x...) sending address";
+    receiverEl().placeholder = "Your Binance Smart Chain (0x...) receiving address";
+  } 
+  else {
+    senderEl().placeholder = "Your sending address";
+    receiverEl().placeholder = "Your receiving address";
+  }
+}
+
 /* ----------------- Uniform Button Feedback ----------------- */
 function showBtnFeedback(btn, message) {
   if (!btn) return;
@@ -210,9 +228,43 @@ function showBtnFeedback(btn, message) {
 
 /* ----------------- Validation Functions ----------------- */
 function validateAddress(asset, addr, role, btn) {
-  const regex = (role==="sender" ? (asset==="USDT" ? /^0x[a-fA-F0-9]{40}$/ : /^x[a-zA-Z0-9]{33}$/)
-                                  : (asset==="USDT" ? /^x[a-zA-Z0-9]{33}$/ : /^0x[a-fA-F0-9]{40}$/));
-  if (!regex.test(addr)) { showBtnFeedback(btn, `${role.charAt(0).toUpperCase()+role.slice(1)} address is invalid.`); return false; }
+  const isSender = role === "sender";
+
+  if (!addr) {
+    showBtnFeedback(btn, `${isSender ? "Sending" : "Receiving"} address is required.`);
+    return false;
+  }
+
+  // Expected formats
+  const expectBSC = (asset === "USDT" && isSender) || (asset === "LUSDT" && !isSender);
+  const expectElectra = !expectBSC;
+
+  // Regex
+  const bscRegex = /^0x[a-fA-F0-9]{40}$/;
+  const electraRegex = /^x[a-zA-Z0-9]{33}$/;
+
+  // Incomplete checks
+  if (expectBSC && addr.startsWith("0x") && addr.length < 42) {
+    showBtnFeedback(btn, "Binance Smart Chain address appears incomplete.");
+    return false;
+  }
+
+  if (expectElectra && addr.startsWith("x") && addr.length < 34) {
+    showBtnFeedback(btn, "OmniXEP address appears incomplete.");
+    return false;
+  }
+
+  // Wrong chain type
+  if (expectBSC && !bscRegex.test(addr)) {
+    showBtnFeedback(btn, "A valid Binance Smart Chain (0x...) address is required.");
+    return false;
+  }
+
+  if (expectElectra && !electraRegex.test(addr)) {
+    showBtnFeedback(btn, "A valid OmniXEP (x...) address is required.");
+    return false;
+  }
+
   return true;
 }
 
@@ -231,9 +283,20 @@ function validateStage1() {
   const receiver = receiverEl().value.trim();
   const btn = document.querySelector('#stage1 button');
 
-  if (!validateAddress(asset,sender,"sender",btn)) return false;
-  if (!asset || amt<10) { showBtnFeedback(btn,"Minimum 10 tokens required."); return false; }
-  if (!validateAddress(asset,receiver,"receiver",btn)) return false;
+if (!asset) {
+  showBtnFeedback(btn, "Select an asset first.");
+  return false;
+}
+
+if (!validateAddress(asset, sender, "sender", btn)) return false;
+
+if (!amt || amt < 10) {
+  showBtnFeedback(btn, "Minimum bridge amount is 10 tokens.");
+  return false;
+}
+
+if (!validateAddress(asset, receiver, "receiver", btn)) return false;
+
   return true;
 }
 
@@ -355,8 +418,10 @@ function updateFee(){
   feeDisplay.innerText=`You will receive: ${received} ${asset==="USDT"?"LUSDT":"USDT"} (after 2% fee)`;
 }
 amountEl().addEventListener("input",updateFee);
-assetEl().addEventListener("change",updateFee);
-updateFee();
+assetEl().addEventListener("change", () => {
+  updateFee();
+  updateAddressPlaceholders();
+});
 </script>
 </body>
 </html>
