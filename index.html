@@ -275,6 +275,14 @@ function validateTxid(asset, txid) {
   return true;
 }
 
+/* ----------------- Secure Request ID Generation ----------------- */
+function generateSecureRequestID() {
+  // 6 bytes = 48 bits of entropy → 12 hex characters
+  const array = new Uint8Array(6);
+  crypto.getRandomValues(array);
+  return Array.from(array, b => b.toString(16).padStart(2,'0')).join('').toUpperCase();
+}
+
 /* ----------------- Stage 1 → Stage 2 ----------------- */
 function validateStage1() {
   const asset = assetEl().value;
@@ -303,7 +311,7 @@ if (!validateAddress(asset, receiver, "receiver", btn)) return false;
 function nextStage() {
   if (!validateStage1()) return;
 
-  requestID = Math.random().toString(16).slice(2,8).toUpperCase();
+  requestID = generateSecureRequestID();
   reqidEl().innerText = requestID;
 
   destinationEl().innerText = assetEl().value==="USDT" ? USDT_RESERVE : LUSDT_BURN;
