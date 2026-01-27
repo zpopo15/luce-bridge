@@ -193,7 +193,7 @@ button:active,
     <input id="amount" type="number" placeholder="Amount to be sent (10 minimum)" />
 
     <div id="feeDisplay" style="margin-top: 8px; font-size: 14px; color: var(--text); background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; width: fit-content;">
-      You will receive: 0
+      You will receive:
     </div>
 
     <input id="receiver" placeholder="Your receiving address" />
@@ -447,7 +447,7 @@ const reqidEl=()=>document.getElementById("reqid");
 /* ----------------- Fee ----------------- */
 function updateFee(){
   const amt=parseFloat(amountEl().value); const asset=assetEl().value; const feeDisplay=document.getElementById("feeDisplay");
-  if(!amt||amt<0||!asset){feeDisplay.innerText="You will receive: 0"; return;}
+  if(!amt||amt<0||!asset){feeDisplay.innerText="You will receive:"; return;}
   const received=(amt*0.98).toFixed(2);
   feeDisplay.innerText=`You will receive: ${received} ${asset==="USDT"?"LUSDT":"USDT"} (after 2% fee)`;
 }
