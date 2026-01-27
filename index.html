@@ -8,140 +8,158 @@
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="favicon-apple.png">
 
-  <style>
-  :root {
-    --bg: rgb(245, 249, 255);
-    --card: #ffffff;
-    --text: #1f2937;
-    --border: #d0d7e2;
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cardo&family=Montserrat:wght@400;500;600;700&display=swap');
 
-    --primary: #2563eb;
-    --primary-hover: #1e40af;
+:root {
+  --bg: rgb(245, 249, 255);
+  --card: #ffffff;
+  --text: #1f2937;
+  --border: #d0d7e2;
 
-    --input-bg: #ffffff;
-    --input-text: #1f2937;
-    --input-border: #c7d2fe;
-  }
+  --primary: #2563eb;
+  --primary-hover: #1e40af;
 
-  [data-theme="dark"] {
-    --bg: rgb(37, 43, 52);
-    --card: #1e2630;
-    --text: #e5e7eb;
-    --border: #2f3a46;
+  --input-bg: #ffffff;
+  --input-text: #1f2937;
+  --input-border: #c7d2fe;
+}
 
-    --primary: #3b82f6;
-    --primary-hover: #2563eb;
+[data-theme="dark"] {
+  --bg: rgb(37, 43, 52);
+  --card: #1e2630;
+  --text: #e5e7eb;
+  --border: #2f3a46;
 
-    --input-bg: #2a3441;
-    --input-text: #e5e7eb;
-    --input-border: #3b4756;
-  }
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
 
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    padding: clamp(12px, 3vw, 24px);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-  }
+  --input-bg: #2a3441;
+  --input-text: #e5e7eb;
+  --input-border: #3b4756;
+}
 
-  .container { max-width: min(92vw, 720px); margin: auto; }
-  h2, h3 { text-align: center; margin-top: 0; margin-bottom: 16px; }
-  h2 { font-size: clamp(1.5rem, 4vw, 2.2rem); }
-  h3 { font-size: clamp(1.1rem, 3vw, 1.4rem); }
+/* Apply Montserrat globally */
+* { 
+  box-sizing: border-box; 
+  font-family: 'Montserrat', sans-serif; 
+}
 
-  .box {
-    background: var(--card);
-    border-radius: 14px;
-    padding: 24px;
-    margin-bottom: 20px;
-    border: 1px solid var(--border);
-    box-shadow: 0 6px 16px rgba(0,0,0,.08);
-    width: 100%;
-    transition: transform .3s ease, opacity .3s ease, background .3s ease;
-  }
+body {
+  margin: 0;
+  padding: clamp(12px, 3vw, 24px);
+  background: var(--bg);
+  color: var(--text);
+}
 
-  input, select {
-    width: 100%;
-    font-size: clamp(16px, 2.6vw, 18px);
-    padding: 14px;
-    margin-top: 12px;
-    border-radius: 10px;
-    border: 1px solid var(--input-border);
-    background: var(--input-bg);
-    color: var(--input-text);
-  }
+/* Headers use Cardo, normal weight */
+h2, h3 {
+  font-family: 'Cardo', serif;
+  font-weight: 400;
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 16px;
+}
 
-  select option { background: var(--card); color: var(--text); }
+h2 { font-size: clamp(1.5rem, 4vw, 2.2rem); }
+h3 { font-size: clamp(1.1rem, 3vw, 1.4rem); }
 
-  button {
-    display: inline-block;
-    font-size: 14px;
-    font-weight: 500;
-    padding: 12px 20px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    background: var(--primary);
-    color: #fff;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    width: 100%;
-    text-align: center;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.08);
-    margin-top: 12px;
-  }
-  button:hover { background: var(--primary-hover); }
+.container { max-width: min(92vw, 720px); margin: auto; }
 
-  .copy-btn {
-    width: auto;
-    display: block;
-    margin: 12px auto 0 auto;
-    font-size: 14px;
-    padding: 12px 20px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    background: var(--primary);
-    color: #fff;
-    cursor: pointer;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.08);
-    transition: all 0.2s ease;
-  }
-  .copy-btn:hover { background: var(--primary-hover); }
+.box {
+  background: var(--card);
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 20px;
+  border: 1px solid var(--border);
+  box-shadow: 0 6px 16px rgba(0,0,0,.08);
+  width: 100%;
+  transition: transform .3s ease, opacity .3s ease, background .3s ease;
+}
 
-  .theme-button {
-    font-size: 14px;
-    padding: 12px 20px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    background: var(--primary);
-    color: #fff;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    margin: 0 auto 20px auto;
-    display: block;
-    width: auto;
-  }
-  .theme-button:hover { background: var(--primary-hover); }
+input, select {
+  width: 100%;
+  font-size: clamp(16px, 2.6vw, 18px);
+  padding: 14px;
+  margin-top: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  color: var(--input-text);
+}
 
-  .hidden { display: none !important; opacity: 0; transform: translateY(10px); }
-  .show { display: block !important; opacity: 1; transform: translateY(0); }
+select option { background: var(--card); color: var(--text); }
 
-  #stage2 { display: flex; flex-direction: column; align-items: center; }
-  #destination { text-align: center; font-weight: bold; margin-top: 10px; word-break: break-all; }
-  #stage2 img { display: block; margin: 16px auto 20px auto; width: min(60vw, 180px); }
-  #stage2 input { width: 100%; }
-  #statusResult {
-    margin-top: 12px;
-    padding: 14px;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    background: var(--card);
-    white-space: pre-wrap;
-    word-break: break-all;
-    width: 100%;
-  }
-  </style>
+button {
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--primary);
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+  margin-top: 12px;
+}
+
+button:hover { background: var(--primary-hover); }
+
+.copy-btn {
+  width: auto;
+  display: block;
+  margin: 12px auto 0 auto;
+  font-size: 14px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--primary);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+  transition: all 0.2s ease;
+}
+
+.copy-btn:hover { background: var(--primary-hover); }
+
+.theme-button {
+  font-size: 14px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--primary);
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin: 0 auto 20px auto;
+  display: block;
+  width: auto;
+}
+
+.theme-button:hover { background: var(--primary-hover); }
+
+.hidden { display: none !important; opacity: 0; transform: translateY(10px); }
+.show { display: block !important; opacity: 1; transform: translateY(0); }
+
+#stage2 { display: flex; flex-direction: column; align-items: center; }
+#destination { text-align: center; font-weight: bold; margin-top: 10px; word-break: break-all; }
+#stage2 img { display: block; margin: 16px auto 20px auto; width: min(60vw, 180px); }
+#stage2 input { width: 100%; }
+#statusResult {
+  margin-top: 12px;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  white-space: pre-wrap;
+  word-break: break-all;
+  width: 100%;
+}
+</style>
 </head>
 
 <body>
