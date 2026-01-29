@@ -75,9 +75,8 @@ h3 { font-size: clamp(1.1rem, 3vw, 1.4rem); }
 
 input, select {
   width: 100%;
-  font-size: clamp(16px, 2.6vw, 18px);
-  padding: 14px;
-  margin-top: 12px;
+  font-size: 14px;
+  padding: 11px;
   border-radius: 10px;
   border: 1px solid var(--input-border);
   background: var(--input-bg);
@@ -85,6 +84,16 @@ input, select {
 }
 
 select option { background: var(--card); color: var(--text); }
+
+label {
+  display: block;
+  margin-top: 8px;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text);
+  opacity: 0.9;
+}
 
 button,
 .copy-btn,
@@ -157,6 +166,16 @@ button:active,
 #destination { text-align: center; font-weight: bold; margin-top: 10px; word-break: break-all; }
 #stage2 img { display: block; margin: 16px auto 20px auto; width: min(60vw, 180px); }
 #stage2 input { width: 100%; }
+#stage2 button {
+  margin-bottom: 2px;
+}
+#stage2 p {
+  margin-top: 2px;
+  margin-bottom: 0;
+}
+#stage2 {
+  padding-bottom: 12px;
+}
 #statusResult {
   margin-top: 12px;
   padding: 14px;
@@ -183,19 +202,22 @@ button:active,
 
   <!-- Stage 1 -->
   <div class="box show" id="stage1">
+    <label for="asset">Asset</label>
     <select id="asset">
-      <option value="">Select Asset</option>
-      <option value="USDT">USDT (Binance Smart Chain → Electra Protocol)</option>
-      <option value="LUSDT">LUSDT (Electra Protocol → Binance Smart Chain)</option>
+      <option value="USDT">USDT (BSC → Electra Protocol)</option>
+      <option value="LUSDT">LUSDT (Electra Protocol → BSC)</option>
     </select>
-
+    
+    <label for="sender" id="senderLabel">Sending Address</label>
     <input id="sender" placeholder="Your sending address" />
-    <input id="amount" type="number" placeholder="Amount to be sent (10 minimum)" />
+    <label for="amount">Amount</label>
+    <input id="amount" type="number" placeholder="10 Minimum" />
 
     <div id="feeDisplay" style="margin-top: 8px; font-size: 14px; color: var(--text); background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; width: fit-content;">
       You will receive:
     </div>
 
+    <label for="receiver" id="receiverLabel">Receiving Address</label>
     <input id="receiver" placeholder="Your receiving address" />
     <button onclick="nextStage()">Continue</button>
   </div>
@@ -206,7 +228,8 @@ button:active,
     <div id="destination"></div>
     <button class="copy-btn" onclick="copyText('destination')">Copy Address</button>
     <img id="qr">
-    <input id="txid" placeholder="Transaction ID (TXID)">
+    <label for="txid">Transaction ID</label>
+    <input id="txid" placeholder="Your TXID">
     <button onclick="submitBridge()">Submit Bridge</button>
     <p style="text-align:center; margin-top:10px;">Request ID: <strong id="reqid"></strong></p>
   </div>
@@ -214,7 +237,8 @@ button:active,
   <!-- Status Check -->
   <div class="box">
   <h3>Check Bridge Status</h3>
-  <input id="searchID" placeholder="Request ID">
+  <label for="searchID">Request ID</label>
+  <input id="searchID" placeholder="Your Request ID">
   <button onclick="checkStatus()">Check</button>
 </div>
 
@@ -228,17 +252,31 @@ let requestID = "";
 function updateAddressPlaceholders() {
   const asset = assetEl().value;
 
+  const senderLabel = document.getElementById("senderLabel");
+  const receiverLabel = document.getElementById("receiverLabel");
+
   if (asset === "USDT") {
-    senderEl().placeholder = "Your Binance Smart Chain (0x...) sending address";
-    receiverEl().placeholder = "Your OmniXEP (x...) receiving address";
+    // USDT → Electra
+    senderLabel.innerText = "Sending Address (Binance Smart Chain)";
+    receiverLabel.innerText = "Receiving Address (Electra Protocol)";
+
+    senderEl().placeholder = "Your BSC Address";
+    receiverEl().placeholder = "Your OmniXEP Address";
   } 
   else if (asset === "LUSDT") {
-    senderEl().placeholder = "Your OmniXEP (x...) sending address";
-    receiverEl().placeholder = "Your Binance Smart Chain (0x...) receiving address";
+    // Electra → USDT
+    senderLabel.innerText = "Sending Address (Electra Protocol)";
+    receiverLabel.innerText = "Receiving Address (Binance Smart Chain)";
+
+    senderEl().placeholder = "Your OmniXEP Address";
+    receiverEl().placeholder = "Your BSC Address";
   } 
   else {
-    senderEl().placeholder = "Your sending address";
-    receiverEl().placeholder = "Your receiving address";
+    senderLabel.innerText = "Sending Address";
+    receiverLabel.innerText = "Receiving Address";
+
+    senderEl().placeholder = "Your Sending Address";
+    receiverEl().placeholder = "Your Receiving Address";
   }
 }
 
@@ -257,7 +295,7 @@ function validateAddress(asset, addr, role, btn) {
   const isSender = role === "sender";
 
   if (!addr) {
-    showBtnFeedback(btn, `${isSender ? "Sending" : "Receiving"} address is required.`);
+    showBtnFeedback(btn, `${isSender ? "Sending" : "Receiving"} Address Required`);
     return false;
   }
 
@@ -271,23 +309,23 @@ function validateAddress(asset, addr, role, btn) {
 
   // Incomplete checks
   if (expectBSC && addr.startsWith("0x") && addr.length < 42) {
-    showBtnFeedback(btn, "Binance Smart Chain address appears incomplete.");
+    showBtnFeedback(btn, "BSC Address Incomplete");
     return false;
   }
 
   if (expectElectra && addr.startsWith("x") && addr.length < 34) {
-    showBtnFeedback(btn, "OmniXEP address appears incomplete.");
+    showBtnFeedback(btn, "OmniXEP Address Incomplete");
     return false;
   }
 
   // Wrong chain type
   if (expectBSC && !bscRegex.test(addr)) {
-    showBtnFeedback(btn, "A valid Binance Smart Chain (0x...) address is required.");
+    showBtnFeedback(btn, "BSC Address Invalid");
     return false;
   }
 
   if (expectElectra && !electraRegex.test(addr)) {
-    showBtnFeedback(btn, "A valid OmniXEP (x...) address is required.");
+    showBtnFeedback(btn, "OmniXEP Address Invalid");
     return false;
   }
 
@@ -297,7 +335,7 @@ function validateAddress(asset, addr, role, btn) {
 function validateTxid(asset, txid) {
   const btn = document.querySelector('#stage2 button[onclick="submitBridge()"]');
   const regex = asset==="USDT" ? /^0x[a-fA-F0-9]{64}$/ : /^[a-fA-F0-9]{64}$/;
-  if (!regex.test(txid)) { showBtnFeedback(btn, "Transaction ID is invalid."); return false; }
+  if (!regex.test(txid)) { showBtnFeedback(btn, "Transaction ID Invalid"); return false; }
   return true;
 }
 
@@ -318,14 +356,14 @@ function validateStage1() {
   const btn = document.querySelector('#stage1 button');
 
 if (!asset) {
-  showBtnFeedback(btn, "Select an asset first.");
+  showBtnFeedback(btn, "Select an asset");
   return false;
 }
 
 if (!validateAddress(asset, sender, "sender", btn)) return false;
 
 if (!amt || amt < 10) {
-  showBtnFeedback(btn, "Minimum bridge amount is 10 tokens.");
+  showBtnFeedback(btn, "Minimum 10 Tokens");
   return false;
 }
 
@@ -358,7 +396,7 @@ function submitBridge() {
   const txid = txidEl().value.trim(); const asset = assetEl().value;
   const btn = document.querySelector('#stage2 button[onclick="submitBridge()"]');
 
-  if (!txid) { showBtnFeedback(btn,"Transaction ID is required."); return; }
+  if (!txid) { showBtnFeedback(btn,"Transaction ID Required"); return; }
   if (!validateTxid(asset,txid)) return;
 
   const payload = { requestID, asset, amount: amountEl().value, sender: senderEl().value, receiver: receiverEl().value, txid };
@@ -380,7 +418,7 @@ function copyText(id){
   const btn=document.querySelector('.copy-btn'); const original=btn.innerText;
   btn.style.width=btn.offsetWidth+"px";
   navigator.clipboard.writeText(document.getElementById(id).innerText);
-  btn.innerText="Copied!";
+  btn.innerText="Copied";
   setTimeout(()=>{btn.innerText=original; btn.style.width="";},2000);
 }
 
@@ -390,24 +428,30 @@ function checkStatus() {
   const id = searchEl().value.trim();
 
   if (!id) {
-    showBtnFeedback(btn, "Enter Request ID.");
+    showBtnFeedback(btn, "Enter Request ID");
     return;
   }
 
   fetch(`${BACKEND_URL}/checkStatus/${id}`)
     .then(res => res.json())
     .then(data => {
-      // Handle error or unrecognized request ID
-      if (data.error || !data.status) {
-        showBtnFeedback(btn, "Request ID not found.");
+      const status = (data.status || "").toLowerCase();
+
+      // Treat backend "Request ID not found" or any error as invalid
+      if (status === "request id not found" || data.error) {
+        showBtnFeedback(btn, "Request ID Invalid");
         return;
       }
 
-      const status = (data.status || "").toLowerCase();
-
-      if (status === "pending") showBtnFeedback(btn, "Pending — allow up to 24h for manual verification.");
-      else if (status === "completed" || status === "complete") showBtnFeedback(btn, "Bridge request completed.");
-      else showBtnFeedback(btn, data.status + ".");
+      // Handle normal statuses
+      if (status === "pending") {
+        showBtnFeedback(btn, "Pending — allow up to 24h for manual verification.");
+      } else if (status === "completed" || status === "complete") {
+        showBtnFeedback(btn, "Bridge request completed.");
+      } else {
+        // Any other unknown message
+        showBtnFeedback(btn, data.status + ".");
+      }
     })
     .catch(err => {
       showBtnFeedback(btn, "Error checking status. Please try again.");
@@ -443,6 +487,9 @@ const stage2=()=>document.getElementById("stage2");
 const statusEl=()=>document.getElementById("statusResult");
 const searchEl=()=>document.getElementById("searchID");
 const reqidEl=()=>document.getElementById("reqid");
+document.addEventListener("DOMContentLoaded", () => {
+  updateAddressPlaceholders();
+});
 
 /* ----------------- Fee ----------------- */
 function updateFee(){
