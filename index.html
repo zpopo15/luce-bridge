@@ -213,7 +213,7 @@ button:active,
     <label for="amount">Amount</label>
     <input id="amount" type="number" placeholder="10 Minimum" />
 
-    <div id="feeDisplay" style="margin-top: 8px; font-size: 14px; color: var(--text); background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; width: fit-content;">
+    <div id="feeDisplay" style="margin-top: 8px; font-size: 14px; color: var(--text); background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 6px 12px; width: fit-content;">
       You will receive:
     </div>
 
@@ -492,12 +492,29 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* ----------------- Fee ----------------- */
-function updateFee(){
-  const amt=parseFloat(amountEl().value); const asset=assetEl().value; const feeDisplay=document.getElementById("feeDisplay");
-  if(!amt||amt<0||!asset){feeDisplay.innerText="You will receive:"; return;}
-  const received=(amt*0.98).toFixed(2);
-  feeDisplay.innerText=`You will receive: ${received} ${asset==="USDT"?"LUSDT":"USDT"} (after 2% fee)`;
+function updateFee() {
+  const amt = parseFloat(amountEl().value);
+  const asset = assetEl().value;
+  const feeDisplay = document.getElementById("feeDisplay");
+
+  if (!amt || amt < 0) {
+    feeDisplay.innerHTML = "You will receive:";
+    return;
+  }
+
+  const received = (amt * 0.98).toFixed(2);
+  
+  let outAsset = "";
+  if (asset) {
+    outAsset = asset === "USDT" ? "LUSDT" : "USDT";
+  }
+
+  feeDisplay.innerHTML = `
+    You will receive: <strong>${received}${outAsset ? " " + outAsset : ""}</strong>
+    <div class="fee-note">Includes 2% protocol fee</div>
+  `;
 }
+
 amountEl().addEventListener("input",updateFee);
 assetEl().addEventListener("change", () => {
   updateFee();
