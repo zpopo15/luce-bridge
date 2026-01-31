@@ -500,6 +500,7 @@ document.addEventListener("DOMContentLoaded", () => {
 /* ----------------- Amount input hard limits ----------------- */
 const MAX_INTEGER_DIGITS = 10; // up to 1,000,000,000
 const MAX_DECIMALS = 2;
+const MIN_AMOUNT = 10;
 
 amountEl().addEventListener("beforeinput", (e) => {
   const el = amountEl();
@@ -523,6 +524,12 @@ amountEl().addEventListener("beforeinput", (e) => {
   }
 
   const parts = next.split(".");
+
+  // Prevent starting with 0 (except when next is just "0" itself, which we block anyway later)
+  if (parts[0].startsWith("0") && parts[0].length > 1) {
+    e.preventDefault();
+    return;
+  }
 
   // Prevent starting with a decimal
   if (next.startsWith(".")) {
@@ -562,15 +569,22 @@ amountEl().addEventListener("input", () => {
   v = v.replace(/[^0-9.]/g, "");
 
   const parts = v.split(".");
+
+  // Only one decimal point allowed
   if (parts.length > 2) {
     v = parts[0] + "." + parts.slice(1).join("");
   }
 
-  // Enforce limits again (failsafe)
+  // Enforce integer and decimal limits
   parts[0] = parts[0].slice(0, MAX_INTEGER_DIGITS);
   if (parts[1]) parts[1] = parts[1].slice(0, MAX_DECIMALS);
 
+  // Remove any leading zeros
+  parts[0] = parts[0].replace(/^0+/, "");
+
   amountEl().value = parts.join(".");
+
+  // Clamp minimum to 10 in fee display
   updateFee();
 });
 
@@ -582,33 +596,39 @@ function updateFee() {
   const raw = amountEl().value;
   const amt = Number(raw);
 
-  // Reset state (empty, invalid, or zero)
-  if (!raw || isNaN(amt) || amt <= 0) {
-    feeDisplay.innerHTML = "You will receive:";
-    return;
-  }
-
-  // Hard clamp (failsafe)
-  if (amt > 1_000_000_000) {
-    feeDisplay.innerHTML = "You will receive:";
-    return;
-  }
-
   const feeRate = 0.02;
-  const received = (amt * (1 - feeRate)).toFixed(2);
+  let displayAmount = "0.00";
 
+  // Only calculate fee if amount is >= 10
+  if (!isNaN(amt) && amt >= 10) {
+    displayAmount = (amt * (1 - feeRate)).toFixed(2);
+  }
+
+  // Determine output denomination
   const outAsset = asset === "USDT" ? "LUSDT" : asset === "LUSDT" ? "USDT" : "";
 
+  // Update fee display
   feeDisplay.innerHTML = `
     You will receive:
-    <strong>${received}${outAsset ? " " + outAsset : ""}</strong>
+    <strong>${displayAmount}${outAsset ? " " + outAsset : ""}</strong>
     <div class="fee-note">Includes 2% protocol fee</div>
   `;
 }
 
+// Update fee when asset changes
 assetEl().addEventListener("change", () => {
   updateFee();
   updateAddressPlaceholders();
+});
+
+// Update fee when amount changes
+amountEl().addEventListener("input", () => {
+  updateFee();
+});
+
+// Initialize on page load
+document.addEventListener("DOMContentLoaded", () => {
+  updateFee();
 });
 </script>
 </body>
