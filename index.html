@@ -211,7 +211,7 @@ button:active,
     <label for="sender" id="senderLabel">Sending Address</label>
     <input id="sender" placeholder="Your sending address" />
     <label for="amount">Amount</label>
-    <input id="amount" type="number" placeholder="10 Minimum" />
+    <input id="amount" type="text" inputmode="decimal" placeholder="10 Minimum" autocomplete="off" />
 
     <div id="feeDisplay" style="margin-top: 8px; font-size: 14px; color: var(--text); background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 6px 12px; width: fit-content;">
       You will receive:
@@ -367,6 +367,12 @@ if (!amt || amt < 10) {
   return false;
 }
 
+if (!amt || amt > 1_000_000_000) {
+  showBtnFeedback(btn, "Amount Exceeds Maximum");
+  return false;
+}
+
+
 if (!validateAddress(asset, receiver, "receiver", btn)) return false;
 
   return true;
@@ -445,9 +451,9 @@ function checkStatus() {
 
       // Handle normal statuses
       if (status === "pending") {
-        showBtnFeedback(btn, "Pending — allow up to 24h for manual verification.");
+        showBtnFeedback(btn, "Pending");
       } else if (status === "completed" || status === "complete") {
-        showBtnFeedback(btn, "Bridge request completed.");
+        showBtnFeedback(btn, "Completed");
       } else {
         // Any other unknown message
         showBtnFeedback(btn, data.status + ".");
@@ -491,31 +497,115 @@ document.addEventListener("DOMContentLoaded", () => {
   updateAddressPlaceholders();
 });
 
+/* ----------------- Amount input hard limits ----------------- */
+const MAX_INTEGER_DIGITS = 10; // up to 1,000,000,000
+const MAX_DECIMALS = 2;
+
+amountEl().addEventListener("beforeinput", (e) => {
+  const el = amountEl();
+  const value = el.value;
+
+  // Allow deletions
+  if (e.inputType && e.inputType.startsWith("delete")) return;
+
+  // Some mobile keyboards send null
+  if (e.data === null) return;
+
+  const next =
+    value.slice(0, el.selectionStart) +
+    e.data +
+    value.slice(el.selectionEnd);
+
+  // Only digits and one decimal
+  if (!/^[0-9.]*$/.test(next)) {
+    e.preventDefault();
+    return;
+  }
+
+  const parts = next.split(".");
+
+  // Prevent starting with a decimal
+  if (next.startsWith(".")) {
+    e.preventDefault();
+    return;
+  }
+
+  // No multiple decimals
+  if (parts.length > 2) {
+    e.preventDefault();
+    return;
+  }
+
+  // Limit integer digits
+  if (parts[0].length > MAX_INTEGER_DIGITS) {
+    e.preventDefault();
+    return;
+  }
+
+  // Limit decimal places
+  if (parts[1] && parts[1].length > MAX_DECIMALS) {
+    e.preventDefault();
+    return;
+  }
+
+  const numeric = Number(next);
+  if (!isNaN(numeric) && numeric > 1_000_000_000) {
+    e.preventDefault();
+    return;
+  }
+});
+
+amountEl().addEventListener("input", () => {
+  let v = amountEl().value;
+
+  // Strip invalid characters (paste safety)
+  v = v.replace(/[^0-9.]/g, "");
+
+  const parts = v.split(".");
+  if (parts.length > 2) {
+    v = parts[0] + "." + parts.slice(1).join("");
+  }
+
+  // Enforce limits again (failsafe)
+  parts[0] = parts[0].slice(0, MAX_INTEGER_DIGITS);
+  if (parts[1]) parts[1] = parts[1].slice(0, MAX_DECIMALS);
+
+  amountEl().value = parts.join(".");
+  updateFee();
+});
+
 /* ----------------- Fee ----------------- */
 function updateFee() {
-  const amt = parseFloat(amountEl().value);
-  const asset = assetEl().value;
   const feeDisplay = document.getElementById("feeDisplay");
+  const asset = assetEl().value;
 
-  if (!amt || amt < 0) {
+  const raw = amountEl().value;
+  const amt = Number(raw);
+
+  // Reset state (empty, invalid, or zero)
+  if (!raw || isNaN(amt) || amt <= 0) {
     feeDisplay.innerHTML = "You will receive:";
     return;
   }
 
-  const received = (amt * 0.98).toFixed(2);
-  
-  let outAsset = "";
-  if (asset) {
-    outAsset = asset === "USDT" ? "LUSDT" : "USDT";
+  // Hard clamp (failsafe)
+  if (amt > 1_000_000_000) {
+    feeDisplay.innerHTML = "You will receive:";
+    return;
   }
 
+  const feeRate = 0.02;
+  const received = (amt * (1 - feeRate)).toFixed(2);
+
+  const outAsset = asset === "USDT" ? "LUSDT" : asset === "LUSDT" ? "USDT" : "";
+
   feeDisplay.innerHTML = `
-    You will receive: <strong>${received}${outAsset ? " " + outAsset : ""}</strong>
+    You will receive:
+    <strong>${received}${outAsset ? " " + outAsset : ""}</strong>
     <div class="fee-note">Includes 2% protocol fee</div>
   `;
 }
 
-amountEl().addEventListener("input",updateFee);
 assetEl().addEventListener("change", () => {
   updateFee();
   updateAddressPlaceholders();
