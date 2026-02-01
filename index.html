@@ -243,7 +243,7 @@ button:active,
 </div>
 
 <script>
-const BACKEND_URL = "https://luce-bridge-backend.onrender.com/";
+const BACKEND_URL = "https://luce-bridge-backend.onrender.com";
 const USDT_RESERVE = "0x348896fF1353966B74d0946F367705E8cf901153";
 const LUSDT_BURN = "xBURNomniXEPXXXXXXXXXXXXXXXXbWWsD9";
 let requestID = "";
@@ -399,24 +399,56 @@ function nextStage() {
 
 /* ----------------- Submit Bridge ----------------- */
 function submitBridge() {
-  const txid = txidEl().value.trim(); const asset = assetEl().value;
+  const txid = txidEl().value.trim();
+  const asset = assetEl().value;
   const btn = document.querySelector('#stage2 button[onclick="submitBridge()"]');
 
-  if (!txid) { showBtnFeedback(btn,"Transaction ID Required"); return; }
-  if (!validateTxid(asset,txid)) return;
+  if (!txid) { 
+    showBtnFeedback(btn, "Transaction ID Required"); 
+    return; 
+  }
+  if (!validateTxid(asset, txid)) return;
 
-  const payload = { requestID, asset, amount: amountEl().value, sender: senderEl().value, receiver: receiverEl().value, txid };
+  const payload = {
+    requestID,
+    asset,
+    amount: amountEl().value,
+    sender: senderEl().value,
+    receiver: receiverEl().value,
+    txid
+  };
+  
   btn.style.width = btn.offsetWidth + "px";
 
-  fetch(BACKEND_URL+"/submitBridge",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)})
-  .then(res=>res.json())
-  .then(data=>{
-    if(data.success){
-      btn.innerText="Bridge Submitted"; btn.disabled=true; btn.style.opacity=0.5; btn.style.cursor="not-allowed";
-      txidEl().disabled=true; txidEl().style.background="var(--input-bg)"; txidEl().style.color="var(--input-text)"; txidEl().style.cursor="not-allowed";
-    }else showBtnFeedback(btn,data.error||"Bridge submission failed. Please try again.");
+  fetch(`${BACKEND_URL}/submitBridge`, {   // <-- remove trailing slash in BACKEND_URL
+    method: "POST",
+    mode: "cors",                           // <-- ensures Cloudflare allows the request
+    headers: {
+      "Content-Type": "application/json",
+      "Accept": "application/json"
+    },
+    body: JSON.stringify(payload)
   })
-  .catch(err=>showBtnFeedback(btn,"Network error. Please try again."));
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      btn.innerText = "Bridge Submitted";
+      btn.disabled = true;
+      btn.style.opacity = 0.5;
+      btn.style.cursor = "not-allowed";
+      
+      txidEl().disabled = true;
+      txidEl().style.background = "var(--input-bg)";
+      txidEl().style.color = "var(--input-text)";
+      txidEl().style.cursor = "not-allowed";
+    } else {
+      showBtnFeedback(btn, data.error || "Bridge submission failed. Please try again.");
+    }
+  })
+  .catch(err => {
+    console.error(err);   // helpful for debugging
+    showBtnFeedback(btn, "Network error. Please try again.");
+  });
 }
 
 /* ----------------- Copy Address ----------------- */
@@ -633,4 +665,5 @@ document.addEventListener("DOMContentLoaded", () => {
 </script>
 </body>
 </html>
+
 
