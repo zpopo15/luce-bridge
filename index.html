@@ -417,23 +417,51 @@ function toggleTheme(){
 })();
 
 /* ----------------- Amount input restrictions ----------------- */
-const MAX_INTEGER_DIGITS=10,MAX_DECIMALS=2;
-amountEl().addEventListener("beforeinput",e=>{
-  const el=amountEl(),val=el.value;
-  if(e.inputType?.startsWith("delete")) return;
-  if(e.data===null) return;
-
-  const next=val.slice(0,el.selectionStart)+e.data+val.slice(el.selectionEnd);
-  if(!/^[0-9.]*$/.test(next)||next.startsWith(".")||next.split(".").length>2||next.split(".")[0].length>MAX_INTEGER_DIGITS||next.split(".")[1]?.length>MAX_DECIMALS||Number(next)>1_000_000_000) e.preventDefault();
+const MAX_INTEGER_DIGITS = 10, MAX_DECIMALS = 2, MAX_AMOUNT = 1_000_000_000;
+amountEl().addEventListener("beforeinput", e => {
+  const el = amountEl(), val = el.value;
+  if (e.inputType?.startsWith("delete") || e.data === null) return;
+  const next = val.slice(0, el.selectionStart) + e.data + val.slice(el.selectionEnd);
+  const parts = next.split(".");
+  // Block invalid chars, multiple decimals, starting with dot, integer/decimal limits, max value
+  if (!/^[0-9.]*$/.test(next) ||
+      next.startsWith(".") ||
+      parts.length > 2 ||
+      parts[0].length > MAX_INTEGER_DIGITS ||
+      parts[1]?.length > MAX_DECIMALS ||
+      Number(next) > MAX_AMOUNT
+  ) { e.preventDefault(); return; }
+  // Block decimal if integer part < 10
+  if (e.data === "." && Number(parts[0]) < 10) { e.preventDefault(); return; }
 });
-amountEl().addEventListener("input",()=>{
-  let v=amountEl().value.replace(/[^0-9.]/g,"");
-  const parts=v.split(".");
-  if(parts.length>2) v=parts[0]+"."+parts.slice(1).join("");
-  parts[0]=parts[0].slice(0,MAX_INTEGER_DIGITS).replace(/^0+/,"");
-  if(parts[1]) parts[1]=parts[1].slice(0,MAX_DECIMALS);
-  amountEl().value=parts.join(".");
+
+amountEl().addEventListener("input", () => {
+  let v = amountEl().value.replace(/[^0-9.]/g, "");
+  const parts = v.split(".");
+  if (parts.length > 2) v = parts[0] + "." + parts.slice(1).join("");
+  parts[0] = parts[0].slice(0, MAX_INTEGER_DIGITS).replace(/^0+/, "");
+  if (parts[1]) parts[1] = parts[1].slice(0, MAX_DECIMALS);
+  amountEl().value = parts.join(".");
   updateFee();
+});
+
+// Prevent invalid pasted values
+amountEl().addEventListener("paste", e => {
+  const paste = (e.clipboardData || window.clipboardData).getData("text");
+  const numeric = paste.replace(/[^0-9.]/g, "");
+  const parts = numeric.split(".");
+  // Invalid if multiple decimals, starts with dot, integer > MAX_INTEGER_DIGITS, decimals > MAX_DECIMALS, > MAX_AMOUNT
+  if (
+    !/^[0-9.]*$/.test(numeric) ||
+    numeric.startsWith(".") ||
+    parts.length > 2 ||
+    parts[0].length > MAX_INTEGER_DIGITS ||
+    parts[1]?.length > MAX_DECIMALS ||
+    Number(numeric) > MAX_AMOUNT ||
+    (parts[1] && Number(parts[0]) < 10) // block decimal if integer part < 10
+  ) {
+    e.preventDefault();
+  }
 });
 
 /* ----------------- Fee ----------------- */
