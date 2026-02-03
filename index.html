@@ -166,16 +166,9 @@ button:active,
 #destination { text-align: center; font-weight: bold; margin-top: 10px; word-break: break-all; }
 #stage2 img { display: block; margin: 16px auto 20px auto; width: min(60vw, 180px); }
 #stage2 input { width: 100%; }
-#stage2 button {
-  margin-bottom: 2px;
-}
-#stage2 p {
-  margin-top: 2px;
-  margin-bottom: 0;
-}
-#stage2 {
-  padding-bottom: 12px;
-}
+#stage2 button { margin-bottom: 2px; }
+#stage2 p { margin-top: 10px; margin-bottom: 0; } /* Keep spacing exactly as production */
+#stage2 { padding-bottom: 12px; }
 #statusResult {
   margin-top: 12px;
   padding: 14px;
@@ -186,6 +179,10 @@ button:active,
   word-break: break-all;
   width: 100%;
 }
+
+/* Fee spacing */
+#feeDisplay { margin-top: 8px; font-size: 14px; color: var(--text); background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 6px 12px; width: fit-content; }
+.fee-note { font-size: 12px; opacity: 0.8; margin-top: 2px; }
 </style>
 </head>
 
@@ -213,8 +210,9 @@ button:active,
     <label for="amount">Amount</label>
     <input id="amount" type="text" inputmode="decimal" placeholder="10 Minimum" autocomplete="off" />
 
-    <div id="feeDisplay" style="margin-top: 8px; font-size: 14px; color: var(--text); background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 6px 12px; width: fit-content;">
-      You will receive:
+    <div id="feeDisplay">
+      You will receive: <strong>0.00</strong>
+      <div class="fee-note">Includes 2% protocol fee</div>
     </div>
 
     <label for="receiver" id="receiverLabel">Receiving Address</label>
@@ -231,16 +229,16 @@ button:active,
     <label for="txid">Transaction ID</label>
     <input id="txid" placeholder="Your TXID">
     <button onclick="submitBridge()">Submit Bridge</button>
-    <p style="text-align:center; margin-top:10px;">Request ID: <strong id="reqid"></strong></p>
+    <p style="text-align:center;">Request ID: <strong id="reqid"></strong></p>
   </div>
 
   <!-- Status Check -->
   <div class="box">
-  <h3>Check Bridge Status</h3>
-  <label for="searchID">Request ID</label>
-  <input id="searchID" placeholder="Your Request ID">
-  <button onclick="checkStatus()">Check</button>
-</div>
+    <h3>Check Bridge Status</h3>
+    <label for="searchID">Request ID</label>
+    <input id="searchID" placeholder="Your Request ID">
+    <button onclick="checkStatus()">Check</button>
+  </div>
 
 <script>
 const BACKEND_URL = "https://luce-bridge-backend.onrender.com";
@@ -248,252 +246,161 @@ const USDT_RESERVE = "0x348896fF1353966B74d0946F367705E8cf901153";
 const LUSDT_BURN = "xBURNomniXEPXXXXXXXXXXXXXXXXbWWsD9";
 let requestID = "";
 
-/* ----------------- Responsive Placeholders ----------------- */
-function updateAddressPlaceholders() {
-  const asset = assetEl().value;
+/* ----------------- Helpers ----------------- */
+const el = id => document.getElementById(id);
+const assetEl = () => el("asset");
+const senderEl = () => el("sender");
+const receiverEl = () => el("receiver");
+const amountEl = () => el("amount");
+const txidEl = () => el("txid");
+const destinationEl = () => el("destination");
+const qrEl = () => el("qr");
+const stage2 = () => el("stage2");
+const searchEl = () => el("searchID");
+const reqidEl = () => el("reqid");
 
-  const senderLabel = document.getElementById("senderLabel");
-  const receiverLabel = document.getElementById("receiverLabel");
-
-  if (asset === "USDT") {
-    // USDT → Electra
-    senderLabel.innerText = "Sending Address (Binance Smart Chain)";
-    receiverLabel.innerText = "Receiving Address (Electra Protocol)";
-
-    senderEl().placeholder = "Your BSC Address";
-    receiverEl().placeholder = "Your OmniXEP Address";
-  } 
-  else if (asset === "LUSDT") {
-    // Electra → USDT
-    senderLabel.innerText = "Sending Address (Electra Protocol)";
-    receiverLabel.innerText = "Receiving Address (Binance Smart Chain)";
-
-    senderEl().placeholder = "Your OmniXEP Address";
-    receiverEl().placeholder = "Your BSC Address";
-  } 
-  else {
-    senderLabel.innerText = "Sending Address";
-    receiverLabel.innerText = "Receiving Address";
-
-    senderEl().placeholder = "Your Sending Address";
-    receiverEl().placeholder = "Your Receiving Address";
-  }
-}
-
-/* ----------------- Uniform Button Feedback ----------------- */
-function showBtnFeedback(btn, message) {
-  if (!btn) return;
+/* ----------------- Button Feedback ----------------- */
+function showBtnFeedback(btn, message){
   const original = btn.innerText;
   btn.innerText = message;
-  btn.style.opacity = 1;
-  btn.style.cursor = "pointer";
-  setTimeout(() => { btn.innerText = original; }, 2000);
+  btn.style.opacity=1;
+  btn.style.cursor="pointer";
+  setTimeout(()=>{btn.innerText=original;},2000);
 }
 
-/* ----------------- Validation Functions ----------------- */
-function validateAddress(asset, addr, role, btn) {
-  const isSender = role === "sender";
-
-  if (!addr) {
-    showBtnFeedback(btn, `${isSender ? "Sending" : "Receiving"} Address Required`);
-    return false;
+/* ----------------- Address Placeholders ----------------- */
+function updateAddressPlaceholders(){
+  const asset = assetEl().value;
+  if(asset==="USDT"){
+    senderEl().placeholder="Your BSC Address";
+    receiverEl().placeholder="Your OmniXEP Address";
+    el("senderLabel").innerText="Sending Address (Binance Smart Chain)";
+    el("receiverLabel").innerText="Receiving Address (Electra Protocol)";
+  }else if(asset==="LUSDT"){
+    senderEl().placeholder="Your OmniXEP Address";
+    receiverEl().placeholder="Your BSC Address";
+    el("senderLabel").innerText="Sending Address (Electra Protocol)";
+    el("receiverLabel").innerText="Receiving Address (Binance Smart Chain)";
+  }else{
+    senderEl().placeholder="Your Sending Address";
+    receiverEl().placeholder="Your Receiving Address";
+    el("senderLabel").innerText="Sending Address";
+    el("receiverLabel").innerText="Receiving Address";
   }
+}
 
-  // Expected formats
-  const expectBSC = (asset === "USDT" && isSender) || (asset === "LUSDT" && !isSender);
+/* ----------------- Address Validation ----------------- */
+function validateAddress(asset, addr, role, btn){
+  const isSender = role==="sender";
+  if(!addr){ showBtnFeedback(btn, isSender?"Sending Address Required":"Receiving Address Required"); return false; }
+  const expectBSC = (asset==="USDT" && isSender) || (asset==="LUSDT" && !isSender);
   const expectElectra = !expectBSC;
-
-  // Regex
   const bscRegex = /^0x[a-fA-F0-9]{40}$/;
   const electraRegex = /^x[a-zA-Z0-9]{33}$/;
 
-  // Incomplete checks
-  if (expectBSC && addr.startsWith("0x") && addr.length < 42) {
-    showBtnFeedback(btn, "BSC Address Incomplete");
-    return false;
-  }
-
-  if (expectElectra && addr.startsWith("x") && addr.length < 34) {
-    showBtnFeedback(btn, "OmniXEP Address Incomplete");
-    return false;
-  }
-
-  // Wrong chain type
-  if (expectBSC && !bscRegex.test(addr)) {
-    showBtnFeedback(btn, "BSC Address Invalid");
-    return false;
-  }
-
-  if (expectElectra && !electraRegex.test(addr)) {
-    showBtnFeedback(btn, "OmniXEP Address Invalid");
-    return false;
-  }
-
+  if(expectBSC && addr.startsWith("0x") && addr.length<42){ showBtnFeedback(btn,"BSC Address Incomplete"); return false; }
+  if(expectElectra && addr.startsWith("x") && addr.length<34){ showBtnFeedback(btn,"OmniXEP Address Incomplete"); return false; }
+  if(expectBSC && !bscRegex.test(addr)){ showBtnFeedback(btn,"BSC Address Invalid"); return false; }
+  if(expectElectra && !electraRegex.test(addr)){ showBtnFeedback(btn,"OmniXEP Address Invalid"); return false; }
   return true;
 }
 
-function validateTxid(asset, txid) {
-  const btn = document.querySelector('#stage2 button[onclick="submitBridge()"]');
-  const regex = asset==="USDT" ? /^0x[a-fA-F0-9]{64}$/ : /^[a-fA-F0-9]{64}$/;
-  if (!regex.test(txid)) { showBtnFeedback(btn, "Transaction ID Invalid"); return false; }
+/* ----------------- TXID Validation ----------------- */
+function validateTxid(asset, txid){
+  const btn = stage2().querySelector("button[onclick='submitBridge()']");
+  const regex = asset==="USDT"?/^0x[a-fA-F0-9]{64}$/:/^[a-fA-F0-9]{64}$/;
+  if(!regex.test(txid)){ showBtnFeedback(btn,"Transaction ID Invalid"); return false; }
   return true;
 }
 
-/* ----------------- Secure Request ID Generation ----------------- */
-function generateSecureRequestID() {
-  // 6 bytes = 48 bits of entropy → 12 hex characters
-  const array = new Uint8Array(6);
+/* ----------------- Request ID ----------------- */
+function generateSecureRequestID(){
+  const array=new Uint8Array(6);
   crypto.getRandomValues(array);
-  return Array.from(array, b => b.toString(16).padStart(2,'0')).join('').toUpperCase();
+  return Array.from(array,b=>b.toString(16).padStart(2,'0')).join('').toUpperCase();
 }
 
 /* ----------------- Stage 1 → Stage 2 ----------------- */
-function validateStage1() {
+function validateStage1(){
   const asset = assetEl().value;
   const amt = +amountEl().value;
   const sender = senderEl().value.trim();
   const receiver = receiverEl().value.trim();
-  const btn = document.querySelector('#stage1 button');
+  const btn = el("stage1").querySelector("button");
 
-if (!asset) {
-  showBtnFeedback(btn, "Select an asset");
-  return false;
-}
-
-if (!validateAddress(asset, sender, "sender", btn)) return false;
-
-if (!amt || amt < 10) {
-  showBtnFeedback(btn, "Minimum 10 Tokens");
-  return false;
-}
-
-if (!amt || amt > 1_000_000_000) {
-  showBtnFeedback(btn, "Amount Exceeds Maximum");
-  return false;
-}
-
-
-if (!validateAddress(asset, receiver, "receiver", btn)) return false;
+  if(!asset){ showBtnFeedback(btn,"Select an asset"); return false; }
+  if(!validateAddress(asset,sender,"sender",btn)) return false;
+  if(!amt || amt<10){ showBtnFeedback(btn,"Minimum 10 Tokens"); return false; }
+  if(!amt || amt>1_000_000_000){ showBtnFeedback(btn,"Amount Exceeds Maximum"); return false; }
+  if(!validateAddress(asset,receiver,"receiver",btn)) return false;
 
   return true;
 }
 
-function nextStage() {
-  if (!validateStage1()) return;
-
+function nextStage(){
+  if(!validateStage1()) return;
   requestID = generateSecureRequestID();
-  reqidEl().innerText = requestID;
-
-  destinationEl().innerText = assetEl().value==="USDT" ? USDT_RESERVE : LUSDT_BURN;
-  qrEl().src = "https://api.qrserver.com/v1/create-qr-code/?size=180x180&data="+destinationEl().innerText;
-
+  reqidEl().innerText=requestID;
+  destinationEl().innerText = assetEl().value==="USDT"?USDT_RESERVE:LUSDT_BURN;
+  qrEl().src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data="+destinationEl().innerText;
   stage2().classList.remove("hidden"); stage2().classList.add("show");
 
-  const btn = document.querySelector('#stage1 button');
+  const btn = el("stage1").querySelector("button");
   btn.disabled=true; btn.innerText="Request ID Generated"; btn.style.opacity=0.5; btn.style.cursor="not-allowed";
 
   [assetEl(),senderEl(),receiverEl(),amountEl()].forEach(input=>{
-    input.disabled=true; input.style.background="var(--input-bg)"; input.style.color="var(--input-text)"; input.style.cursor="not-allowed";
+    input.disabled=true; input.style.background="var(--input-bg)";
+    input.style.color="var(--input-text)";
+    input.style.cursor="not-allowed";
   });
 }
 
 /* ----------------- Submit Bridge ----------------- */
-function submitBridge() {
-  const txid = txidEl().value.trim();
-  const asset = assetEl().value;
-  const btn = document.querySelector('#stage2 button[onclick="submitBridge()"]');
+function submitBridge(){
+  const txid=txidEl().value.trim();
+  const asset=assetEl().value;
+  const btn = stage2().querySelector("button[onclick='submitBridge()']");
+  if(!txid){ showBtnFeedback(btn,"Transaction ID Required"); return; }
+  if(!validateTxid(asset,txid)) return;
 
-  if (!txid) { 
-    showBtnFeedback(btn, "Transaction ID Required"); 
-    return; 
-  }
-  if (!validateTxid(asset, txid)) return;
+  const payload={requestID,asset,amount:amountEl().value,sender:senderEl().value,receiver:receiverEl().value,txid};
+  btn.style.width = btn.offsetWidth+"px";
 
-  const payload = {
-    requestID,
-    asset,
-    amount: amountEl().value,
-    sender: senderEl().value,
-    receiver: receiverEl().value,
-    txid
-  };
-  
-  btn.style.width = btn.offsetWidth + "px";
-
-  fetch(`${BACKEND_URL}/submitBridge`, {   // <-- remove trailing slash in BACKEND_URL
-    method: "POST",
-    mode: "cors",                           // <-- ensures Cloudflare allows the request
-    headers: {
-      "Content-Type": "application/json",
-      "Accept": "application/json"
-    },
-    body: JSON.stringify(payload)
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.success) {
-      btn.innerText = "Bridge Submitted";
-      btn.disabled = true;
-      btn.style.opacity = 0.5;
-      btn.style.cursor = "not-allowed";
-      
-      txidEl().disabled = true;
-      txidEl().style.background = "var(--input-bg)";
-      txidEl().style.color = "var(--input-text)";
-      txidEl().style.cursor = "not-allowed";
-    } else {
-      showBtnFeedback(btn, data.error || "Bridge submission failed. Please try again.");
-    }
-  })
-  .catch(err => {
-    console.error(err);   // helpful for debugging
-    showBtnFeedback(btn, "Network error. Please try again.");
-  });
+  fetch(`${BACKEND_URL}/submitBridge`,{
+    method:"POST",mode:"cors",
+    headers:{"Content-Type":"application/json","Accept":"application/json"},
+    body:JSON.stringify(payload)
+  }).then(r=>r.json()).then(data=>{
+    if(data.success){
+      btn.innerText="Bridge Submitted"; btn.disabled=true; btn.style.opacity=0.5; btn.style.cursor="not-allowed";
+      txidEl().disabled=true; txidEl().style.background="var(--input-bg)";
+      txidEl().style.color="var(--input-text)"; txidEl().style.cursor="not-allowed";
+    }else showBtnFeedback(btn,data.error||"Bridge submission failed. Please try again.");
+  }).catch(err=>{ console.error(err); showBtnFeedback(btn,"Network error. Please try again."); });
 }
 
 /* ----------------- Copy Address ----------------- */
 function copyText(id){
   const btn=document.querySelector('.copy-btn'); const original=btn.innerText;
   btn.style.width=btn.offsetWidth+"px";
-  navigator.clipboard.writeText(document.getElementById(id).innerText);
+  navigator.clipboard.writeText(el(id).innerText);
   btn.innerText="Copied";
   setTimeout(()=>{btn.innerText=original; btn.style.width="";},2000);
 }
 
-/* ----------------- Check Status (button feedback style) ----------------- */
-function checkStatus() {
-  const btn = document.querySelector('.box:last-of-type button'); // the Check button
-  const id = searchEl().value.trim();
+/* ----------------- Status ----------------- */
+function checkStatus(){
+  const btn=document.querySelector('.box:last-of-type button'); 
+  const id=searchEl().value.trim();
+  if(!id){ showBtnFeedback(btn,"Enter Request ID"); return; }
 
-  if (!id) {
-    showBtnFeedback(btn, "Enter Request ID");
-    return;
-  }
-
-  fetch(`${BACKEND_URL}/checkStatus/${id}`)
-    .then(res => res.json())
-    .then(data => {
-      const status = (data.status || "").toLowerCase();
-
-      // Treat backend "Request ID not found" or any error as invalid
-      if (status === "request id not found" || data.error) {
-        showBtnFeedback(btn, "Request ID Invalid");
-        return;
-      }
-
-      // Handle normal statuses
-      if (status === "pending") {
-        showBtnFeedback(btn, "Pending");
-      } else if (status === "completed" || status === "complete") {
-        showBtnFeedback(btn, "Completed");
-      } else {
-        // Any other unknown message
-        showBtnFeedback(btn, data.status + ".");
-      }
-    })
-    .catch(err => {
-      showBtnFeedback(btn, "Error checking status. Please try again.");
-    });
+  fetch(`${BACKEND_URL}/checkStatus/${id}`).then(r=>r.json()).then(data=>{
+    const status=(data.status||"").toLowerCase();
+    if(status==="request id not found"||data.error){ showBtnFeedback(btn,"Request ID Invalid"); return; }
+    if(status==="pending") showBtnFeedback(btn,"Pending");
+    else if(status==="completed"||status==="complete") showBtnFeedback(btn,"Completed");
+    else showBtnFeedback(btn,data.status+".");
+  }).catch(()=>showBtnFeedback(btn,"Error checking status. Please try again."));
 }
 
 /* ----------------- Theme ----------------- */
@@ -501,169 +408,46 @@ function toggleTheme(){
   const isDark=document.documentElement.dataset.theme==="dark";
   document.documentElement.dataset.theme=isDark?"":"dark";
   localStorage.setItem("theme",isDark?"":"dark");
-  updateThemeButton();
-}
-
-function updateThemeButton(){
-  document.getElementById("themeButton").innerText=document.documentElement.dataset.theme==="dark"?"Light Mode":"Dark Mode";
+  el("themeButton").innerText=isDark?"Dark Mode":"Light Mode";
 }
 
 (function(){
   document.documentElement.dataset.theme=localStorage.getItem("theme")==="dark"?"dark":"";
-  updateThemeButton();
+  el("themeButton").innerText=document.documentElement.dataset.theme==="dark"?"Light Mode":"Dark Mode";
 })();
 
-/* ----------------- Helpers ----------------- */
-const assetEl=()=>document.getElementById("asset");
-const senderEl=()=>document.getElementById("sender");
-const receiverEl=()=>document.getElementById("receiver");
-const amountEl=()=>document.getElementById("amount");
-const txidEl=()=>document.getElementById("txid");
-const destinationEl=()=>document.getElementById("destination");
-const qrEl=()=>document.getElementById("qr");
-const stage2=()=>document.getElementById("stage2");
-const statusEl=()=>document.getElementById("statusResult");
-const searchEl=()=>document.getElementById("searchID");
-const reqidEl=()=>document.getElementById("reqid");
-document.addEventListener("DOMContentLoaded", () => {
-  updateAddressPlaceholders();
+/* ----------------- Amount input restrictions ----------------- */
+const MAX_INTEGER_DIGITS=10,MAX_DECIMALS=2;
+amountEl().addEventListener("beforeinput",e=>{
+  const el=amountEl(),val=el.value;
+  if(e.inputType?.startsWith("delete")) return;
+  if(e.data===null) return;
+
+  const next=val.slice(0,el.selectionStart)+e.data+val.slice(el.selectionEnd);
+  if(!/^[0-9.]*$/.test(next)||next.startsWith(".")||next.split(".").length>2||next.split(".")[0].length>MAX_INTEGER_DIGITS||next.split(".")[1]?.length>MAX_DECIMALS||Number(next)>1_000_000_000) e.preventDefault();
 });
-
-/* ----------------- Amount input hard limits ----------------- */
-const MAX_INTEGER_DIGITS = 10; // up to 1,000,000,000
-const MAX_DECIMALS = 2;
-const MIN_AMOUNT = 10;
-
-amountEl().addEventListener("beforeinput", (e) => {
-  const el = amountEl();
-  const value = el.value;
-
-  // Allow deletions
-  if (e.inputType && e.inputType.startsWith("delete")) return;
-
-  // Some mobile keyboards send null
-  if (e.data === null) return;
-
-  const next =
-    value.slice(0, el.selectionStart) +
-    e.data +
-    value.slice(el.selectionEnd);
-
-  // Only digits and one decimal
-  if (!/^[0-9.]*$/.test(next)) {
-    e.preventDefault();
-    return;
-  }
-
-  const parts = next.split(".");
-
-  // Prevent starting with 0 (except when next is just "0" itself, which we block anyway later)
-  if (parts[0].startsWith("0") && parts[0].length > 1) {
-    e.preventDefault();
-    return;
-  }
-
-  // Prevent starting with a decimal
-  if (next.startsWith(".")) {
-    e.preventDefault();
-    return;
-  }
-
-  // No multiple decimals
-  if (parts.length > 2) {
-    e.preventDefault();
-    return;
-  }
-
-  // Limit integer digits
-  if (parts[0].length > MAX_INTEGER_DIGITS) {
-    e.preventDefault();
-    return;
-  }
-
-  // Limit decimal places
-  if (parts[1] && parts[1].length > MAX_DECIMALS) {
-    e.preventDefault();
-    return;
-  }
-
-  const numeric = Number(next);
-  if (!isNaN(numeric) && numeric > 1_000_000_000) {
-    e.preventDefault();
-    return;
-  }
-});
-
-amountEl().addEventListener("input", () => {
-  let v = amountEl().value;
-
-  // Strip invalid characters (paste safety)
-  v = v.replace(/[^0-9.]/g, "");
-
-  const parts = v.split(".");
-
-  // Only one decimal point allowed
-  if (parts.length > 2) {
-    v = parts[0] + "." + parts.slice(1).join("");
-  }
-
-  // Enforce integer and decimal limits
-  parts[0] = parts[0].slice(0, MAX_INTEGER_DIGITS);
-  if (parts[1]) parts[1] = parts[1].slice(0, MAX_DECIMALS);
-
-  // Remove any leading zeros
-  parts[0] = parts[0].replace(/^0+/, "");
-
-  amountEl().value = parts.join(".");
-
-  // Clamp minimum to 10 in fee display
+amountEl().addEventListener("input",()=>{
+  let v=amountEl().value.replace(/[^0-9.]/g,"");
+  const parts=v.split(".");
+  if(parts.length>2) v=parts[0]+"."+parts.slice(1).join("");
+  parts[0]=parts[0].slice(0,MAX_INTEGER_DIGITS).replace(/^0+/,"");
+  if(parts[1]) parts[1]=parts[1].slice(0,MAX_DECIMALS);
+  amountEl().value=parts.join(".");
   updateFee();
 });
 
 /* ----------------- Fee ----------------- */
-function updateFee() {
-  const feeDisplay = document.getElementById("feeDisplay");
-  const asset = assetEl().value;
-
-  const raw = amountEl().value;
-  const amt = Number(raw);
-
-  const feeRate = 0.02;
-  let displayAmount = "0.00";
-
-  // Only calculate fee if amount is >= 10
-  if (!isNaN(amt) && amt >= 10) {
-    displayAmount = (amt * (1 - feeRate)).toFixed(2);
-  }
-
-  // Determine output denomination
-  const outAsset = asset === "USDT" ? "LUSDT" : asset === "LUSDT" ? "USDT" : "";
-
-  // Update fee display
-  feeDisplay.innerHTML = `
-    You will receive:
-    <strong>${displayAmount}${outAsset ? " " + outAsset : ""}</strong>
-    <div class="fee-note">Includes 2% protocol fee</div>
-  `;
+function updateFee(){
+  const feeDisplay=el("feeDisplay");
+  const asset=assetEl().value;
+  const amt=Number(amountEl().value)||0;
+  const outAsset=asset==="USDT"?"LUSDT":asset==="LUSDT"?"USDT":"";
+  const displayAmount=amt>=10?(amt*0.98).toFixed(2):"0.00";
+  feeDisplay.innerHTML=`You will receive: <strong>${displayAmount}${outAsset?" "+outAsset:""}</strong><div class="fee-note">Includes 2% protocol fee</div>`;
 }
 
-// Update fee when asset changes
-assetEl().addEventListener("change", () => {
-  updateFee();
-  updateAddressPlaceholders();
-});
-
-// Update fee when amount changes
-amountEl().addEventListener("input", () => {
-  updateFee();
-});
-
-// Initialize on page load
-document.addEventListener("DOMContentLoaded", () => {
-  updateFee();
-});
+assetEl().addEventListener("change",()=>{ updateFee(); updateAddressPlaceholders(); });
+document.addEventListener("DOMContentLoaded",()=>{ updateFee(); updateAddressPlaceholders(); });
 </script>
 </body>
 </html>
-
-
