@@ -130,14 +130,17 @@ button,
     transform 0.1s ease;
 }
 
-button:hover,
-.copy-btn:hover,
-.theme-button:hover {
-  background-image: linear-gradient(
-    -180deg,
-    rgb(51, 130, 209) 0%,
-    rgb(51, 130, 209) 96%
-  );
+/* Hover ONLY on devices that actually support hover */
+@media (hover: hover) and (pointer: fine) {
+  button:hover,
+  .copy-btn:hover,
+  .theme-button:hover {
+    background-image: linear-gradient(
+      -180deg,
+      rgb(51, 130, 209) 0%,
+      rgb(51, 130, 209) 96%
+    );
+  }
 }
 
 button:active,
@@ -157,6 +160,12 @@ button:active,
 .theme-button {
   margin: 0 auto 20px auto;
   width: auto;
+}
+
+button,
+.copy-btn,
+.theme-button {
+  -webkit-tap-highlight-color: transparent;
 }
 
 .hidden { display: none !important; opacity: 0; transform: translateY(10px); }
@@ -482,4 +491,3 @@ document.addEventListener("DOMContentLoaded",()=>{ updateFee(); updateAddressPla
 </script>
 </body>
 </html>
-
