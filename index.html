@@ -151,7 +151,7 @@ button:active,
 }
 
 .copy-btn {
-  width: auto;
+  width: auto%;
 }
 
 .theme-button {
@@ -261,11 +261,16 @@ const reqidEl = () => el("reqid");
 
 /* ----------------- Button Feedback ----------------- */
 function showBtnFeedback(btn, message){
-  const original = btn.innerText;
+  if(!btn.dataset.originalText) btn.dataset.originalText = btn.innerText;
+  btn.disabled = true;
   btn.innerText = message;
-  btn.style.opacity=1;
-  btn.style.cursor="pointer";
-  setTimeout(()=>{btn.innerText=original;},2000);
+  btn.style.opacity = 1;
+  btn.style.cursor = "not-allowed";
+  setTimeout(() => {
+    btn.innerText = btn.dataset.originalText;
+    btn.disabled = false;
+    btn.style.cursor = "pointer";
+  }, 2000);
 }
 
 /* ----------------- Address Placeholders ----------------- */
@@ -381,11 +386,9 @@ function submitBridge(){
 
 /* ----------------- Copy Address ----------------- */
 function copyText(id){
-  const btn=document.querySelector('.copy-btn'); const original=btn.innerText;
-  btn.style.width=btn.offsetWidth+"px";
+  const btn = document.querySelector('.copy-btn');
   navigator.clipboard.writeText(el(id).innerText);
-  btn.innerText="Copied";
-  setTimeout(()=>{btn.innerText=original; btn.style.width="";},2000);
+  showBtnFeedback(btn, "Copied");
 }
 
 /* ----------------- Status ----------------- */
