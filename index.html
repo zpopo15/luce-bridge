@@ -1,261 +1,202 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <base target="_top">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <title>luce.finance Bridge</title>
-
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="favicon-apple.png">
-
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Cardo&family=Josefin+Sans:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap');
-
-:root {
-  --bg: rgb(245, 249, 255);
-  --card: #ffffff;
-  --text: #1f2937;
-  --border: #d0d7e2;
-  --primary: #2563eb;
-  --primary-hover: #1e40af;
-  --input-bg: #ffffff;
-  --input-text: #1f2937;
-  --input-border: #c7d2fe;
-}
-
-[data-theme="dark"] {
-  --bg: rgb(37, 43, 52);
-  --card: #1e2630;
-  --text: #e5e7eb;
-  --border: #2f3a46;
-  --primary: #3b82f6;
-  --primary-hover: #2563eb;
-  --input-bg: #2a3441;
-  --input-text: #e5e7eb;
-  --input-border: #3b4756;
-}
-
-/* Apply Montserrat globally */
-* { 
-  box-sizing: border-box; 
-  font-family: 'Montserrat', sans-serif; 
-}
-
-body {
-  margin: 0;
-  padding: clamp(12px, 3vw, 24px);
-  background: var(--bg);
-  color: var(--text);
-}
-
-/* Headers use Cardo, normal weight */
-h2, h3 {
-  font-family: 'Cardo', serif;
-  font-weight: 400;
-  text-align: center;
-  margin-top: 0;
-  margin-bottom: 16px;
-}
-
-h2 { font-size: clamp(1.5rem, 4vw, 2.2rem); }
-h3 { font-size: clamp(1.1rem, 3vw, 1.4rem); }
-
-.container { max-width: min(92vw, 720px); margin: auto; }
-
-.box {
-  background: var(--card);
-  border-radius: 14px;
-  padding: 24px;
-  margin-bottom: 20px;
-  border: 1px solid var(--border);
-  box-shadow: 0 6px 16px rgba(0,0,0,.08);
-  width: 100%;
-  transition: transform .3s ease, opacity .3s ease, background .3s ease;
-}
-
-input, select {
-  width: 100%;
-  font-size: 14px;
-  padding: 11px;
-  border-radius: 10px;
-  border: 1px solid var(--input-border);
-  background: var(--input-bg);
-  color: var(--input-text);
-}
-
-select option { background: var(--card); color: var(--text); }
-
-label {
-  display: block;
-  margin-top: 8px;
-  margin-bottom: 6px;
-  font-size: 14px;
-  font-weight: 400;
-  color: var(--text);
-  opacity: 0.9;
-}
-
-button,
-.copy-btn,
-.theme-button {
-  display: block;
-  width: 100%;
-  height: 50px;
-  line-height: 50px;
-  padding: 0 40px;
-  margin: 12px auto 0 auto;
-  border-radius: 10px;
-  border: none;
-  box-sizing: border-box;
-  font-family: 'Josefin Sans', sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  text-align: center;
-  text-decoration: none !important;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: rgb(255, 255, 255);
-  cursor: pointer;
-  background-image: linear-gradient(
-    -180deg,
-    rgb(102, 186, 241) 0%,
-    rgb(51, 130, 209) 96%
-  );
-  background-repeat: no-repeat !important;
-  background-color: rgb(51, 130, 209);
-  box-shadow: none;
-  transition:
-    background-image 0.2s ease,
-    transform 0.1s ease;
-}
-
-/* Hover ONLY on devices that actually support hover */
-@media (hover: hover) and (pointer: fine) {
-  button:hover,
-  .copy-btn:hover,
-  .theme-button:hover {
-    background-image: linear-gradient(
-      -180deg,
-      rgb(51, 130, 209) 0%,
-      rgb(51, 130, 209) 96%
-    );
-  }
-}
-
-button:active,
-.copy-btn:active,
-.theme-button:active {
-  background-image: linear-gradient(
-    -180deg,
-    rgba(102, 186, 241, 1) 0%,
-    rgba(102, 186, 241, 1) 96%
-  );
-}
-
-.copy-btn {
-  width: auto;
-}
-
-.theme-button {
-  margin: 0 auto 20px auto;
-  width: auto;
-}
-
-button,
-.copy-btn,
-.theme-button {
-  -webkit-tap-highlight-color: transparent;
-}
-
-.hidden { display: none !important; opacity: 0; transform: translateY(10px); }
-.show { display: block !important; opacity: 1; transform: translateY(0); }
-
-#stage2 { display: flex; flex-direction: column; align-items: center; }
-#destination { text-align: center; font-weight: bold; margin-top: 10px; word-break: break-all; }
-#stage2 img { display: block; margin: 16px auto 20px auto; width: min(60vw, 180px); }
-#stage2 input { width: 100%; }
-#stage2 button { margin-bottom: 2px; }
-#stage2 p { margin-top: 10px; margin-bottom: 0; } /* Keep spacing exactly as production */
-#stage2 { padding-bottom: 12px; }
-#statusResult {
-  margin-top: 12px;
-  padding: 14px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: var(--card);
-  white-space: pre-wrap;
-  word-break: break-all;
-  width: 100%;
-}
-
-/* Fee spacing */
-#feeDisplay { margin-top: 8px; font-size: 14px; color: var(--text); background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 6px 12px; width: fit-content; }
-.fee-note { font-size: 12px; opacity: 0.8; margin-top: 2px; }
-</style>
+  <link href="https://fonts.googleapis.com/css2?family=Cardo&family=Josefin+Sans:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: rgb(245, 249, 255);
+      --card: #ffffff;
+      --text: #1f2937;
+      --border: #d0d7e2;
+      --primary: #1d4ed8;
+      --input-bg: #ffffff;
+      --input-text: #1f2937;
+      --input-border: #c7d2fe;
+      --muted: #6b7280;
+      --gain: #16a34a;
+      --loss: #dc2626;
+      --divider: #e8edf5;
+      --warn: #b45309;
+      --warn-bg: #fffbeb;
+      --warn-border: #fcd34d;
+    }
+    [data-theme="dark"] {
+      --bg: rgb(37, 43, 52);
+      --card: #1e2630;
+      --text: #e5e7eb;
+      --border: #2f3a46;
+      --primary: #60a5fa;
+      --input-bg: #2a3441;
+      --input-text: #e5e7eb;
+      --input-border: #3b4756;
+      --muted: #9ca3af;
+      --gain: #22c55e;
+      --loss: #f87171;
+      --divider: #26333f;
+      --warn: #fbbf24;
+      --warn-bg: #1c1a0e;
+      --warn-border: #78560a;
+    }
+    * { box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
+    body { margin: 0; padding: clamp(12px, 3vw, 24px); background: var(--bg); color: var(--text); transition: background 0.3s ease, color 0.3s ease; }
+    h2, h3 { font-family: 'Cardo', serif; font-weight: 400; text-align: center; margin-top: 0; margin-bottom: 16px; }
+    h2 { font-size: clamp(1.5rem, 4vw, 2.2rem); }
+    h3 { font-size: clamp(1.1rem, 3vw, 1.4rem); margin-bottom: 12px; }
+    .container { max-width: min(92vw, 720px); margin: auto; }
+    .box { background: var(--card); border-radius: 14px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border); box-shadow: 0 6px 16px rgba(0,0,0,.08); width: 100%; transition: background 0.3s ease, border 0.3s ease; }
+    label { display: block; margin-top: 8px; margin-bottom: 6px; font-size: 14px; font-weight: 400; color: var(--text); opacity: 0.9; }
+    input, select { width: 100%; font-size: 14px; padding: 11px; border-radius: 10px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--input-text); font-family: 'Montserrat', sans-serif; outline: none; transition: border-color 0.2s; }
+    select { -webkit-appearance: none; -moz-appearance: none; appearance: none; padding-right: 36px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236b7280'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; cursor: pointer; height: 47px; }
+    [data-theme="dark"] select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239ca3af'/%3E%3C/svg%3E"); }
+    input:focus, select:focus { border-color: var(--primary); }
+    select option { background: var(--card); color: var(--text); }
+    .hint { font-size: 11px; color: var(--muted); margin-top: 4px; }
+    .spinner-wrap { display:flex; border:1px solid var(--input-border); border-radius:10px; overflow:hidden; background:var(--input-bg); transition: border-color 0.2s; }
+    .spinner-wrap:focus-within { border-color: var(--primary); }
+    .spinner-wrap input { border:none; border-radius:0; flex:1; background:transparent; outline:none; color:var(--input-text); font-size:14px; padding:11px; font-family:'Montserrat',sans-serif; }
+    .spinner-btns { display:flex; flex-direction:column; border-left:1px solid var(--input-border); flex-shrink:0; }
+    .spinner-btn { all:unset; width:30px; height:22px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--muted); font-size:9px; background:var(--input-bg); transition: color 0.15s; }
+    .spinner-btn:first-child { border-bottom:1px solid var(--input-border); }
+    .spinner-btn:hover { color:var(--text); }
+    .divider { border: none; border-top: 1px solid var(--divider); margin: 20px 0; }
+    button {
+      display: block; width: 100%; height: 50px; line-height: 50px; padding: 0 40px; margin: 12px auto 0 auto;
+      border-radius: 10px; border: 1px solid var(--primary); box-sizing: border-box; font-family: 'Josefin Sans', sans-serif;
+      font-size: 14px; font-weight: 600; letter-spacing: 0.04em; text-align: center; white-space: nowrap; overflow: hidden;
+      text-overflow: ellipsis; color: var(--primary); cursor: pointer;
+      background: transparent; transition: background 0.15s, color 0.15s; -webkit-tap-highlight-color: transparent;
+    }
+    @media (hover: hover) and (pointer: fine) {
+      button:hover { background: var(--primary); color: #fff; }
+    }
+    button:active { background: var(--primary); color: #fff; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .action-row { display: flex; gap: 8px; margin-top: 12px; justify-content: center; flex-wrap: wrap; }
+    .action-btn { height: 36px; line-height: 36px; padding: 0 20px; font-size: 12px; width: auto; min-width: 160px; margin: 0; background-image: none; background-color: transparent; color: var(--primary); border: 1px solid var(--primary); border-radius: 8px; font-family: 'Josefin Sans', sans-serif; font-weight: 600; letter-spacing: 0.04em; cursor: pointer; transition: background 0.15s, color 0.15s; }
+    .action-btn:hover { background-color: var(--primary); color: #fff; background-image: none; }
+    .action-btn:active { background-color: var(--primary); color: #fff; background-image: none; }
+    .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .note { font-size: 12px; color: var(--muted); line-height: 1.8; text-align: center; margin-bottom: 0; padding-top: 4px; }
+    .section-note { font-size: 12px; color: var(--muted); text-align: center; margin: 0 0 16px 0; line-height: 1.5; }
+    .privacy-note { font-size: 11px; color: var(--muted); text-align: center; margin: 0 auto 20px auto; padding: 8px 20px; border: 1px solid var(--divider); border-radius: 10px; line-height: 1.6; display: inline-block; }
+    .privacy-note strong { color: var(--text); }
+    .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .brand-link { display: flex; align-items: center; gap: 0; margin-left: -6px; text-decoration: none; }
+    .brand-link img { height: clamp(44px, 8vw, 80px); width: auto; display: block; }
+    .brand-link span { font-family: 'Cardo', serif; font-size: clamp(1rem, 3.5vw, 1.4rem); font-weight: 400; color: var(--text); letter-spacing: 0.02em; position: relative; top: 4px; margin-left: clamp(-8px, -2vw, -16px); }
+    .stage-locked { opacity: 0.4; pointer-events: none; user-select: none; transition: opacity 0.3s ease; }
+    .stage-locked input, .stage-locked button, .stage-locked a { cursor: not-allowed; }
+    #stage2 { display: block; }
+    #stage2-send { text-align: center; }
+    #destination { text-align: center; font-weight: 600; margin-top: 8px; word-break: break-all; font-size: 13px; color: var(--text); }
+    #stage2 img { display: block; margin: 16px auto 4px auto; width: min(60vw, 180px); border-radius: 10px; }
+    #stage2 input { width: 100%; }
+    #reqid-row { margin-top: 12px; text-align: center; font-size: 13px; color: var(--muted); }
+    #reqid-row strong { color: var(--text); letter-spacing: 0.04em; }
+    #feeDisplay { margin-top: 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; width: 100%; text-align: center; }
+    .fee-label { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+    .fee-value { font-size: 17px; font-weight: 700; color: var(--text); font-family: "Montserrat", sans-serif; }
+    .fee-note { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  </style>
 </head>
-
 <body>
 <div class="container">
 
-  <button class="theme-button" id="themeButton" onclick="toggleTheme()">Dark Mode</button>
-  <h2>luce.finance Bridge</h2>
+  <div class="header-row">
+    <a href="https://luce.finance" target="_blank" rel="noopener" class="brand-link">
+      <img src="https://hosting.renderforestsites.com/17779951/1250850/media/d8af0bc87b9336dde8ac231ebee762fd.png" alt="luce.finance">
+      <span>luce.finance</span>
+    </a>
+    <button id="themeButton" onclick="toggleTheme()" onmouseover="this.style.background='var(--primary)';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='var(--primary)'" style="width:auto; height:32px; line-height:32px; padding:0 12px; margin:0; border-radius:8px; border:1px solid var(--primary); background:transparent; color:var(--primary); cursor:pointer; font-family:'Josefin Sans',sans-serif; font-size:clamp(10px, 2.5vw, 12px); font-weight:600; letter-spacing:0.04em; white-space:nowrap; transition:background 0.15s, color 0.15s;">Dark Mode</button>
+  </div>
 
-  <p style="text-align: center; font-family: 'Josefin Sans', sans-serif; font-size: 13px; margin: 0 0 18px 0; color: var(--text); opacity: 0.85; line-height: 1.5;">
-    Bridge requests are <strong>manually verified</strong> for security reasons.  
-    Please allow up to <strong>24 hours</strong> for completion after submission.
+  <h2>USDT &#8596; LUSDT Bridge</h2>
+  <p class="section-note">
+    Swap between <strong>USDT</strong> on Binance Smart Chain and <strong>LUSDT</strong> on Electra Protocol.<br>
+    Requests are <strong>manually verified</strong> &mdash; please allow up to <strong>24 hours</strong> for completion.
   </p>
 
-  <!-- Stage 1 -->
-  <div class="box show" id="stage1">
-    <label for="asset">Asset</label>
-    <select id="asset">
-      <option value="USDT">USDT (BSC → Electra Protocol)</option>
-      <option value="LUSDT">LUSDT (Electra Protocol → BSC)</option>
-    </select>
-    
-    <label for="sender" id="senderLabel">Sending Address</label>
-    <input id="sender" placeholder="Your sending address" />
-    <label for="amount">Amount</label>
-    <input id="amount" type="text" inputmode="decimal" placeholder="10 Minimum" autocomplete="off" />
 
-    <div id="feeDisplay">
-      You will receive: <strong>0.00</strong>
-      <div class="fee-note">Includes 2% protocol fee</div>
+  <!-- Stage 1 -->
+  <div class="box" id="stage1">
+    <h3>Bridge Details</h3>
+
+    <select id="asset">
+      <option value="USDT">USDT (BSC &rarr; Electra Protocol)</option>
+      <option value="LUSDT">LUSDT (Electra Protocol &rarr; BSC)</option>
+    </select>
+
+    <label for="sender" id="senderLabel">Sending Address (Binance Smart Chain)</label>
+    <input id="sender"  />
+    <div class="hint" id="senderHint">Your Full BSC Wallet Address Starting With 0x</div>
+
+    <label for="receiver" id="receiverLabel">Receiving Address (Electra Protocol)</label>
+    <input id="receiver"  />
+    <div class="hint" id="receiverHint">Your Full OmniXEP Wallet Address Starting With x</div>
+
+    <label for="amount">Amount to Send</label>
+    <div class="spinner-wrap">
+      <input type="text" id="amount" inputmode="numeric" autocomplete="off">
+      <div class="spinner-btns">
+        <button type="button" class="spinner-btn" data-action="amtUp">&#9650;</button>
+        <button type="button" class="spinner-btn" data-action="amtDown">&#9660;</button>
+      </div>
+    </div>
+    <div class="hint">Minimum 10 Tokens &mdash; Maximum 1,000,000,000</div>
+
+    <div id="feeDisplay" style="margin-top:10px;">
+      <div class="fee-label">You Will Receive</div>
+      <div class="fee-value">0.00</div>
+      <div class="fee-note">Includes 2% Protocol Fee</div>
     </div>
 
-    <label for="receiver" id="receiverLabel">Receiving Address</label>
-    <input id="receiver" placeholder="Your receiving address" />
-    <button onclick="nextStage()">Continue</button>
+    <button id="continueBtn" onclick="nextStage()">Continue</button>
   </div>
 
   <!-- Stage 2 -->
-  <div class="box hidden" id="stage2">
-    <h3>Send To</h3>
-    <div id="destination"></div>
-    <button class="copy-btn" onclick="copyText('destination')">Copy Address</button>
-    <img id="qr">
-    <label for="txid">Transaction ID</label>
-    <input id="txid" placeholder="Your TXID">
-    <button onclick="submitBridge()">Submit Bridge</button>
-    <p style="text-align:center;">Request ID: <strong id="reqid"></strong></p>
+  <div class="box" id="stage2">
+    <h3>Send Your Funds</h3>
+    <div id="stage2-send" style="opacity:0.25; pointer-events:none; user-select:none; transition:opacity 0.3s ease; min-height:60px;">
+      <div id="destination" style="margin-bottom:8px;"></div>
+      <button onclick="copyDestination(this)" style="margin-top:10px;">Copy Address</button>
+      <div class="hint" style="text-align:center; margin-top:12px;">Scan to Send</div>
+      <img id="qr" alt="" style="display:block; margin:8px auto 4px auto; width:min(60vw,180px); border-radius:10px; min-height:40px;">
+    </div>
+    <hr class="divider" style="width:100%; opacity:0.3;" id="stage2-divider">
+    <div id="stage2-submit" style="opacity:0.25; pointer-events:none; user-select:none; transition:opacity 0.3s ease;">
+      <label for="txid" style="width:100%;">Transaction ID</label>
+      <input id="txid" style="width:100%;">
+      <div class="hint" style="width:100%;" id="txidHint">Found in Your Wallet After Sending &mdash; Starts With 0x for BSC</div>
+      <button onclick="submitBridge()" style="margin-top:12px;">Submit Bridge Request</button>
+      <div id="reqid-row" style="display:none;">Request ID: <strong id="reqid"></strong></div>
+    </div>
   </div>
 
   <!-- Status Check -->
   <div class="box">
     <h3>Check Bridge Status</h3>
     <label for="searchID">Request ID</label>
-    <input id="searchID" placeholder="Your Request ID">
-    <button onclick="checkStatus()">Check</button>
+    <input id="searchID" >
+    <div class="hint">Provided After Submitting Your Bridge Request</div>
+    <button onclick="checkStatus()">Check Status</button>
   </div>
+
+  <p class="note">All bridge requests are manually reviewed for security &mdash; please allow up to 24 hours.<br>This tool is provided as-is. Not financial advice.</p>
+
+</div>
 
 <script>
 const BACKEND_URL = "https://luce-bridge-backend.onrender.com";
 const USDT_RESERVE = "0x348896fF1353966B74d0946F367705E8cf901153";
 const LUSDT_BURN = "xBURNomniXEPXXXXXXXXXXXXXXXXbWWsD9";
+const MAX_AMOUNT = 1_000_000_000;
 let requestID = "";
 
-/* ----------------- Helpers ----------------- */
 const el = id => document.getElementById(id);
 const assetEl = () => el("asset");
 const senderEl = () => el("sender");
@@ -264,230 +205,268 @@ const amountEl = () => el("amount");
 const txidEl = () => el("txid");
 const destinationEl = () => el("destination");
 const qrEl = () => el("qr");
-const stage2 = () => el("stage2");
 const searchEl = () => el("searchID");
 const reqidEl = () => el("reqid");
 
-/* ----------------- Button Feedback ----------------- */
-function showBtnFeedback(btn, message){
-  if(!btn.dataset.originalText) btn.dataset.originalText = btn.innerText;
-  btn.disabled = true;
+function showBtnFeedback(btn, message) {
+  const orig = btn.dataset.orig || btn.innerText;
+  btn.dataset.orig = orig;
+  clearTimeout(btn._feedbackTimer);
   btn.innerText = message;
-  btn.style.opacity = 1;
-  btn.style.cursor = "not-allowed";
-  setTimeout(() => {
-    btn.innerText = btn.dataset.originalText;
-    btn.disabled = false;
-    btn.style.cursor = "pointer";
-  }, 2000);
+  btn._feedbackTimer = setTimeout(() => { btn.innerText = orig; }, 2000);
 }
 
-/* ----------------- Address Placeholders ----------------- */
-function updateAddressPlaceholders(){
+function updateFee() {
   const asset = assetEl().value;
-  if(asset==="USDT"){
-    senderEl().placeholder="Your BSC Address";
-    receiverEl().placeholder="Your OmniXEP Address";
-    el("senderLabel").innerText="Sending Address (Binance Smart Chain)";
-    el("receiverLabel").innerText="Receiving Address (Electra Protocol)";
-  }else if(asset==="LUSDT"){
-    senderEl().placeholder="Your OmniXEP Address";
-    receiverEl().placeholder="Your BSC Address";
-    el("senderLabel").innerText="Sending Address (Electra Protocol)";
-    el("receiverLabel").innerText="Receiving Address (Binance Smart Chain)";
-  }else{
-    senderEl().placeholder="Your Sending Address";
-    receiverEl().placeholder="Your Receiving Address";
-    el("senderLabel").innerText="Sending Address";
-    el("receiverLabel").innerText="Receiving Address";
+  const amt = Number(amountEl().value.replace(/,/g, "")) || 0;
+  const outAsset = asset === "USDT" ? "LUSDT" : asset === "LUSDT" ? "USDT" : "";
+  const displayAmount = amt >= 10 ? (amt * 0.98).toFixed(2) : "0.00";
+  el("feeDisplay").innerHTML = '<div class="fee-label">You Will Receive</div><div class="fee-value">' + displayAmount + (outAsset ? " " + outAsset : "") + '</div><div class="fee-note">Includes 2% Protocol Fee</div>';
+}
+
+function updateAddressPlaceholders() {
+  const asset = assetEl().value;
+  if (asset === "USDT") {
+    el("senderLabel").innerText = "Sending Address (Binance Smart Chain)";
+    el("receiverLabel").innerText = "Receiving Address (Electra Protocol)";
+    el("senderHint").innerText = "Your Full BSC Wallet Address Starting With 0x";
+    el("receiverHint").innerText = "Your Full OmniXEP Wallet Address Starting With x";
+  } else if (asset === "LUSDT") {
+    el("senderLabel").innerText = "Sending Address (Electra Protocol)";
+    el("receiverLabel").innerText = "Receiving Address (Binance Smart Chain)";
+    el("senderHint").innerText = "Your Full OmniXEP Wallet Address Starting With x";
+    el("receiverHint").innerText = "Your Full BSC Wallet Address Starting With 0x";
   }
 }
 
-/* ----------------- Address Validation ----------------- */
-function validateAddress(asset, addr, role, btn){
-  const isSender = role==="sender";
-  if(!addr){ showBtnFeedback(btn, isSender?"Sending Address Required":"Receiving Address Required"); return false; }
-  const expectBSC = (asset==="USDT" && isSender) || (asset==="LUSDT" && !isSender);
-  const expectElectra = !expectBSC;
+function validateAddress(asset, addr, role, btn) {
+  const isSender = role === "sender";
+  if (!addr) { showBtnFeedback(btn, isSender ? "Sending Address Required" : "Receiving Address Required"); return false; }
+  const expectBSC = (asset === "USDT" && isSender) || (asset === "LUSDT" && !isSender);
   const bscRegex = /^0x[a-fA-F0-9]{40}$/;
   const electraRegex = /^x[a-zA-Z0-9]{33}$/;
-
-  if(expectBSC && addr.startsWith("0x") && addr.length<42){ showBtnFeedback(btn,"BSC Address Incomplete"); return false; }
-  if(expectElectra && addr.startsWith("x") && addr.length<34){ showBtnFeedback(btn,"OmniXEP Address Incomplete"); return false; }
-  if(expectBSC && !bscRegex.test(addr)){ showBtnFeedback(btn,"BSC Address Invalid"); return false; }
-  if(expectElectra && !electraRegex.test(addr)){ showBtnFeedback(btn,"OmniXEP Address Invalid"); return false; }
+  if (expectBSC && addr.startsWith("0x") && addr.length < 42) { showBtnFeedback(btn, "BSC Address Incomplete"); return false; }
+  if (!expectBSC && addr.startsWith("x") && addr.length < 34) { showBtnFeedback(btn, "OmniXEP Address Incomplete"); return false; }
+  if (expectBSC && !bscRegex.test(addr)) { showBtnFeedback(btn, "BSC Address Invalid"); return false; }
+  if (!expectBSC && !electraRegex.test(addr)) { showBtnFeedback(btn, "OmniXEP Address Invalid"); return false; }
   return true;
 }
 
-/* ----------------- TXID Validation ----------------- */
-function validateTxid(asset, txid){
-  const btn = stage2().querySelector("button[onclick='submitBridge()']");
-  const regex = asset==="USDT"?/^0x[a-fA-F0-9]{64}$/:/^[a-fA-F0-9]{64}$/;
-  if(!regex.test(txid)){ showBtnFeedback(btn,"Transaction ID Invalid"); return false; }
+function validateTxid(asset, txid) {
+  const btn = el("stage2").querySelector("button[onclick='submitBridge()']");
+  const regex = asset === "USDT" ? /^0x[a-fA-F0-9]{64}$/ : /^[a-fA-F0-9]{64}$/;
+  if (!regex.test(txid)) { showBtnFeedback(btn, "Transaction ID Invalid"); return false; }
   return true;
 }
 
-/* ----------------- Request ID ----------------- */
-function generateSecureRequestID(){
-  const array=new Uint8Array(6);
+function generateSecureRequestID() {
+  const array = new Uint8Array(6);
   crypto.getRandomValues(array);
-  return Array.from(array,b=>b.toString(16).padStart(2,'0')).join('').toUpperCase();
+  return Array.from(array, b => b.toString(16).padStart(2, "0")).join("").toUpperCase();
 }
 
-/* ----------------- Stage 1 → Stage 2 ----------------- */
-function validateStage1(){
+function validateStage1() {
   const asset = assetEl().value;
-  const amt = +amountEl().value;
+  const amt = +amountEl().value.replace(/,/g, "");
   const sender = senderEl().value.trim();
   const receiver = receiverEl().value.trim();
-  const btn = el("stage1").querySelector("button");
-
-  if(!asset){ showBtnFeedback(btn,"Select an asset"); return false; }
-  if(!validateAddress(asset,sender,"sender",btn)) return false;
-  if(!amt || amt<10){ showBtnFeedback(btn,"Minimum 10 Tokens"); return false; }
-  if(!amt || amt>1_000_000_000){ showBtnFeedback(btn,"Amount Exceeds Maximum"); return false; }
-  if(!validateAddress(asset,receiver,"receiver",btn)) return false;
-
+  const btn = el("continueBtn");
+  if (!asset) { showBtnFeedback(btn, "Select an asset"); return false; }
+  if (!validateAddress(asset, sender, "sender", btn)) return false;
+  if (!validateAddress(asset, receiver, "receiver", btn)) return false;
+  if (!amt || amt < 10) { showBtnFeedback(btn, "Minimum 10 Tokens"); return false; }
+  if (amt > MAX_AMOUNT) { showBtnFeedback(btn, "Amount Exceeds Maximum"); return false; }
   return true;
 }
 
-function nextStage(){
-  if(!validateStage1()) return;
+function nextStage() {
+  if (!validateStage1()) return;
   requestID = generateSecureRequestID();
-  reqidEl().innerText=requestID;
-  destinationEl().innerText = assetEl().value==="USDT"?USDT_RESERVE:LUSDT_BURN;
-  qrEl().src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data="+destinationEl().innerText;
-  stage2().classList.remove("hidden"); stage2().classList.add("show");
-
-  const btn = el("stage1").querySelector("button");
-  btn.disabled=true; btn.innerText="Request ID Generated"; btn.style.opacity=0.5; btn.style.cursor="not-allowed";
-
-  [assetEl(),senderEl(),receiverEl(),amountEl()].forEach(input=>{
-    input.disabled=true; input.style.background="var(--input-bg)";
-    input.style.color="var(--input-text)";
-    input.style.cursor="not-allowed";
+  reqidEl().innerText = requestID;
+  destinationEl().innerText = assetEl().value === "USDT" ? USDT_RESERVE : LUSDT_BURN;
+  qrEl().src = "https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=" + destinationEl().innerText;
+  const txidHint = el("txidHint");
+  if (txidHint) txidHint.textContent = assetEl().value === "USDT"
+    ? "Found in Your Wallet After Sending — Starts With 0x for BSC"
+    : "Found in Your Wallet After Sending — 64 Character Hex String";
+  document.getElementById("stage2-send").style.opacity = "1";
+  document.getElementById("stage2-send").style.pointerEvents = "auto";
+  document.getElementById("stage2-send").style.userSelect = "auto";
+  document.getElementById("stage2-divider").style.opacity = "1";
+  document.getElementById("stage2-submit").style.opacity = "1";
+  document.getElementById("stage2-submit").style.pointerEvents = "auto";
+  document.getElementById("stage2-submit").style.userSelect = "auto";
+  const btn = el("continueBtn");
+  btn.disabled = true; btn.innerText = "Details Confirmed"; btn.style.opacity = 0.5; btn.style.cursor = "not-allowed";
+  [assetEl(), senderEl(), receiverEl(), amountEl()].forEach(input => {
+    input.disabled = true; input.style.background = "var(--input-bg)";
+    input.style.color = "var(--input-text)"; input.style.cursor = "not-allowed";
   });
 }
 
-/* ----------------- Submit Bridge ----------------- */
-function submitBridge(){
-  const txid=txidEl().value.trim();
-  const asset=assetEl().value;
-  const btn = stage2().querySelector("button[onclick='submitBridge()']");
-  if(!txid){ showBtnFeedback(btn,"Transaction ID Required"); return; }
-  if(!validateTxid(asset,txid)) return;
-
-  const payload={requestID,asset,amount:amountEl().value,sender:senderEl().value,receiver:receiverEl().value,txid};
-  btn.style.width = btn.offsetWidth+"px";
-
-  fetch(`${BACKEND_URL}/submitBridge`,{
-    method:"POST",mode:"cors",
-    headers:{"Content-Type":"application/json","Accept":"application/json"},
-    body:JSON.stringify(payload)
-  }).then(r=>r.json()).then(data=>{
-    if(data.success){
-      btn.innerText="Bridge Submitted"; btn.disabled=true; btn.style.opacity=0.5; btn.style.cursor="not-allowed";
-      txidEl().disabled=true; txidEl().style.background="var(--input-bg)";
-      txidEl().style.color="var(--input-text)"; txidEl().style.cursor="not-allowed";
-    }else showBtnFeedback(btn,data.error||"Bridge submission failed. Please try again.");
-  }).catch(err=>{ console.error(err); showBtnFeedback(btn,"Network error. Please try again."); });
+function submitBridge() {
+  const txid = txidEl().value.trim();
+  const asset = assetEl().value;
+  const btn = el("stage2").querySelector("button[onclick='submitBridge()']");
+  if (!txid) { showBtnFeedback(btn, "Transaction ID Required"); return; }
+  if (!validateTxid(asset, txid)) return;
+  const payload = { requestID, asset, amount: amountEl().value.replace(/,/g, ""), sender: senderEl().value, receiver: receiverEl().value, txid };
+  fetch(BACKEND_URL + "/submitBridge", {
+    method: "POST", mode: "cors",
+    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+    body: JSON.stringify(payload)
+  }).then(r => r.json()).then(data => {
+    if (data.success) {
+      btn.innerText = "Bridge Submitted"; btn.disabled = true; btn.style.opacity = 0.5; btn.style.cursor = "not-allowed";
+      txidEl().disabled = true; txidEl().style.background = "var(--input-bg)";
+      txidEl().style.color = "var(--input-text)"; txidEl().style.cursor = "not-allowed";
+      el("reqid-row").style.display = "block";
+      el("searchID").value = requestID;
+      const submittedAt = Date.now();
+      el("reqid-row").innerHTML = "Request ID: <strong>" + requestID + "</strong>";
+      const countdownEl = document.createElement("div");
+      countdownEl.className = "hint";
+      countdownEl.style.marginTop = "6px";
+      countdownEl.style.textAlign = "center";
+      el("reqid-row").appendChild(countdownEl);
+      (function tick() {
+        const elapsed = Date.now() - submittedAt;
+        const remaining = Math.max(0, 24 * 3600 * 1000 - elapsed);
+        const h = Math.floor(remaining / 3600000);
+        const m = Math.floor((remaining % 3600000) / 60000);
+        countdownEl.textContent = remaining > 0 ? "Up to " + h + "h " + m + "m Remaining" : "Processing Window Elapsed";
+        if (remaining > 0) setTimeout(tick, 60000);
+      })();
+      const successMsg = document.createElement("div");
+      successMsg.style.cssText = "margin-top:12px; padding:12px 14px; background:var(--bg); border:1px solid var(--gain); border-radius:10px; color:var(--gain); font-size:13px; text-align:center; font-family:'Josefin Sans',sans-serif; font-weight:600; letter-spacing:0.04em;";
+      successMsg.textContent = "✓ Bridge Request Received";
+      btn.parentNode.insertBefore(successMsg, btn.nextSibling);
+    } else showBtnFeedback(btn, data.error || "Submission failed. Please try again.");
+  }).catch(err => { console.error(err); showBtnFeedback(btn, "Network error. Please try again."); });
 }
 
-/* ----------------- Copy Address ----------------- */
-function copyText(id){
-  const btn = document.querySelector('.copy-btn');
-  navigator.clipboard.writeText(el(id).innerText);
-  showBtnFeedback(btn, "Copied");
+function copyDestination(btn) {
+  navigator.clipboard.writeText(destinationEl().innerText);
+  showBtnFeedback(btn, "Copied!");
 }
 
-/* ----------------- Status ----------------- */
-function checkStatus(){
-  const btn=document.querySelector('.box:last-of-type button'); 
-  const id=searchEl().value.trim();
-  if(!id){ showBtnFeedback(btn,"Enter Request ID"); return; }
-
-  fetch(`${BACKEND_URL}/checkStatus/${id}`).then(r=>r.json()).then(data=>{
-    const status=(data.status||"").toLowerCase();
-    if(status==="request id not found"||data.error){ showBtnFeedback(btn,"Request ID Invalid"); return; }
-    if(status==="pending") showBtnFeedback(btn,"Pending");
-    else if(status==="completed"||status==="complete") showBtnFeedback(btn,"Completed");
-    else showBtnFeedback(btn,data.status+".");
-  }).catch(()=>showBtnFeedback(btn,"Error checking status. Please try again."));
+function checkStatus() {
+  const btn = el("searchID").closest(".box").querySelector("button");
+  const id = searchEl().value.trim();
+  if (!id) { showBtnFeedback(btn, "Enter Request ID"); return; }
+  fetch(BACKEND_URL + "/checkStatus/" + id).then(r => r.json()).then(data => {
+    const status = (data.status || "").toLowerCase();
+    if (status === "request id not found" || data.error) { showBtnFeedback(btn, "Request ID Invalid"); return; }
+    if (status === "pending") showBtnFeedback(btn, "Pending");
+    else if (status === "completed" || status === "complete") showBtnFeedback(btn, "Completed");
+    else showBtnFeedback(btn, data.status + ".");
+  }).catch(() => showBtnFeedback(btn, "Error checking status. Please try again."));
 }
 
-/* ----------------- Theme ----------------- */
-function toggleTheme(){
-  const isDark=document.documentElement.dataset.theme==="dark";
-  document.documentElement.dataset.theme=isDark?"":"dark";
-  localStorage.setItem("theme",isDark?"":"dark");
-  el("themeButton").innerText=isDark?"Dark Mode":"Light Mode";
+function toggleTheme() {
+  const isDark = document.documentElement.dataset.theme === "dark";
+  document.documentElement.dataset.theme = isDark ? "" : "dark";
+  localStorage.setItem("theme", isDark ? "" : "dark");
+  el("themeButton").textContent = isDark ? "Dark Mode" : "Light Mode";
 }
 
-(function(){
-  document.documentElement.dataset.theme=localStorage.getItem("theme")==="dark"?"dark":"";
-  el("themeButton").innerText=document.documentElement.dataset.theme==="dark"?"Light Mode":"Dark Mode";
+(function() {
+  document.documentElement.dataset.theme = localStorage.getItem("theme") === "dark" ? "dark" : "";
+  el("themeButton").textContent = document.documentElement.dataset.theme === "dark" ? "Light Mode" : "Dark Mode";
 })();
 
-/* ----------------- Amount input restrictions ----------------- */
-const MAX_INTEGER_DIGITS = 10, MAX_DECIMALS = 2, MAX_AMOUNT = 1_000_000_000;
-amountEl().addEventListener("beforeinput", e => {
-  const el = amountEl(), val = el.value;
-  if (e.inputType?.startsWith("delete") || e.data === null) return;
-  const next = val.slice(0, el.selectionStart) + e.data + val.slice(el.selectionEnd);
-  const parts = next.split(".");
-  // Block invalid chars, multiple decimals, starting with dot, integer/decimal limits, max value
-  if (!/^[0-9.]*$/.test(next) ||
-      next.startsWith(".") ||
-      parts.length > 2 ||
-      parts[0].length > MAX_INTEGER_DIGITS ||
-      parts[1]?.length > MAX_DECIMALS ||
-      Number(next) > MAX_AMOUNT
-  ) { e.preventDefault(); return; }
-  // Block decimal if integer part < 10
-  if (e.data === "." && Number(parts[0]) < 10) { e.preventDefault(); return; }
-});
-
-amountEl().addEventListener("input", () => {
-  let v = amountEl().value.replace(/[^0-9.]/g, "");
-  const parts = v.split(".");
-  if (parts.length > 2) v = parts[0] + "." + parts.slice(1).join("");
-  parts[0] = parts[0].slice(0, MAX_INTEGER_DIGITS).replace(/^0+/, "");
-  if (parts[1]) parts[1] = parts[1].slice(0, MAX_DECIMALS);
-  amountEl().value = parts.join(".");
+function stepAmount(dir) {
+  const raw = +amountEl().value.replace(/,/g, "") || 0;
+  const next = Math.min(MAX_AMOUNT, Math.max(10, raw + dir));
+  amountEl().value = next.toLocaleString();
   updateFee();
-});
-
-// Prevent invalid pasted values
-amountEl().addEventListener("paste", e => {
-  const paste = (e.clipboardData || window.clipboardData).getData("text");
-  const numeric = paste.replace(/[^0-9.]/g, "");
-  const parts = numeric.split(".");
-  // Invalid if multiple decimals, starts with dot, integer > MAX_INTEGER_DIGITS, decimals > MAX_DECIMALS, > MAX_AMOUNT
-  if (
-    !/^[0-9.]*$/.test(numeric) ||
-    numeric.startsWith(".") ||
-    parts.length > 2 ||
-    parts[0].length > MAX_INTEGER_DIGITS ||
-    parts[1]?.length > MAX_DECIMALS ||
-    Number(numeric) > MAX_AMOUNT ||
-    (parts[1] && Number(parts[0]) < 10) // block decimal if integer part < 10
-  ) {
-    e.preventDefault();
-  }
-});
-
-/* ----------------- Fee ----------------- */
-function updateFee(){
-  const feeDisplay=el("feeDisplay");
-  const asset=assetEl().value;
-  const amt=Number(amountEl().value)||0;
-  const outAsset=asset==="USDT"?"LUSDT":asset==="LUSDT"?"USDT":"";
-  const displayAmount=amt>=10?(amt*0.98).toFixed(2):"0.00";
-  feeDisplay.innerHTML=`You will receive: <strong>${displayAmount}${outAsset?" "+outAsset:""}</strong><div class="fee-note">Includes 2% protocol fee</div>`;
 }
 
-assetEl().addEventListener("change",()=>{ updateFee(); updateAddressPlaceholders(); });
-document.addEventListener("DOMContentLoaded",()=>{ updateFee(); updateAddressPlaceholders(); });
+function makeHoldRepeat(fn) {
+  var timeout, interval, accelTimeout, didRepeat, isDown;
+  function start() {
+    isDown = true; didRepeat = false;
+    timeout = setTimeout(function() {
+      didRepeat = true; fn();
+      interval = setInterval(fn, 100);
+      accelTimeout = setTimeout(function() {
+        clearInterval(interval);
+        interval = setInterval(fn, 40);
+      }, 1000);
+    }, 400);
+  }
+  function stop() {
+    clearTimeout(timeout); clearInterval(interval); clearTimeout(accelTimeout);
+    if (isDown && !didRepeat) fn();
+    isDown = false; didRepeat = false;
+  }
+  function cancel() {
+    clearTimeout(timeout); clearInterval(interval); clearTimeout(accelTimeout);
+    isDown = false; didRepeat = false;
+  }
+  return { start: start, stop: stop, cancel: cancel };
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+  updateFee();
+  updateAddressPlaceholders();
+
+  assetEl().addEventListener("change", function() { updateFee(); updateAddressPlaceholders(); });
+
+  amountEl().addEventListener("keydown", e => {
+    if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+      e.preventDefault();
+      stepAmount(e.key === "ArrowUp" ? 1 : -1);
+    }
+  });
+
+  amountEl().addEventListener("input", () => {
+    const inp = amountEl();
+    const pos = inp.selectionStart;
+    const raw = inp.value.replace(/[^0-9]/g, "");
+    if (!raw) { inp.value = ""; updateFee(); return; }
+    const num = Math.min(MAX_AMOUNT, +raw);
+    const formatted = num.toLocaleString();
+    const oldLen = inp.value.length;
+    inp.value = formatted;
+    const newLen = inp.value.length;
+    inp.setSelectionRange(pos + (newLen - oldLen), pos + (newLen - oldLen));
+    updateFee();
+  });
+
+  amountEl().addEventListener("blur", () => {
+    const raw = amountEl().value.replace(/[^0-9]/g, "");
+    if (!raw) { amountEl().value = ""; return; }
+    const num = Math.min(MAX_AMOUNT, Math.max(10, +raw));
+    amountEl().value = num.toLocaleString();
+    updateFee();
+  });
+
+  amountEl().addEventListener("paste", e => {
+    e.preventDefault();
+    const text = (e.clipboardData || window.clipboardData).getData("text");
+    const raw = text.replace(/[^0-9]/g, "");
+    if (!raw) return;
+    const num = Math.min(MAX_AMOUNT, +raw);
+    amountEl().value = num.toLocaleString();
+    updateFee();
+  });
+
+  var amtHandlers = {
+    "amtUp":   makeHoldRepeat(function() { stepAmount(1); }),
+    "amtDown": makeHoldRepeat(function() { stepAmount(-1); })
+  };
+  document.querySelectorAll(".spinner-btn[data-action]").forEach(function(btn) {
+    var action = btn.getAttribute("data-action");
+    if (!amtHandlers[action]) return;
+    btn.addEventListener("mousedown", amtHandlers[action].start);
+    btn.addEventListener("mouseup", amtHandlers[action].stop);
+    btn.addEventListener("mouseleave", amtHandlers[action].cancel);
+    btn.addEventListener("touchstart", function(e) { e.preventDefault(); amtHandlers[action].start(); }, { passive: false });
+    btn.addEventListener("touchend", amtHandlers[action].stop);
+    btn.addEventListener("touchcancel", amtHandlers[action].cancel);
+  });
+});
 </script>
 </body>
 </html>
