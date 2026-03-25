@@ -152,7 +152,7 @@
     <div id="feeDisplay" style="margin-top:10px;">
       <div class="fee-label">You Will Receive</div>
       <div class="fee-value">0.00</div>
-      <div class="fee-note">Includes 2% Protocol Fee</div>
+      <div class="fee-note">Includes 2% Processing Fee</div>
     </div>
 
     <button id="continueBtn" onclick="nextStage()">Continue</button>
@@ -221,7 +221,7 @@ function updateFee() {
   const amt = Number(amountEl().value.replace(/,/g, "")) || 0;
   const outAsset = asset === "USDT" ? "LUSDT" : asset === "LUSDT" ? "USDT" : "";
   const displayAmount = amt >= 10 ? (amt * 0.98).toFixed(2) : "0.00";
-  el("feeDisplay").innerHTML = '<div class="fee-label">You Will Receive</div><div class="fee-value">' + displayAmount + (outAsset ? " " + outAsset : "") + '</div><div class="fee-note">Includes 2% Protocol Fee</div>';
+  el("feeDisplay").innerHTML = '<div class="fee-label">You Will Receive</div><div class="fee-value">' + displayAmount + (outAsset ? " " + outAsset : "") + '</div><div class="fee-note">Includes 2% Processing Fee</div>';
 }
 
 function updateAddressPlaceholders() {
@@ -231,11 +231,13 @@ function updateAddressPlaceholders() {
     el("receiverLabel").innerText = "Receiving Address (Electra Protocol)";
     el("senderHint").innerText = "Your Full BSC Wallet Address Starting With 0x";
     el("receiverHint").innerText = "Your Full OmniXEP Wallet Address Starting With x";
+    if (el("txidHint")) el("txidHint").textContent = "Found in Your Wallet After Sending — Starts With 0x for BSC";
   } else if (asset === "LUSDT") {
     el("senderLabel").innerText = "Sending Address (Electra Protocol)";
     el("receiverLabel").innerText = "Receiving Address (Binance Smart Chain)";
     el("senderHint").innerText = "Your Full OmniXEP Wallet Address Starting With x";
     el("receiverHint").innerText = "Your Full BSC Wallet Address Starting With 0x";
+    if (el("txidHint")) el("txidHint").textContent = "Found in Your Wallet After Sending — 64 Character Hex String";
   }
 }
 
